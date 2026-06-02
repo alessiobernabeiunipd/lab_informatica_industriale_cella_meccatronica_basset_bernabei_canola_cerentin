@@ -87,18 +87,15 @@ typedef struct {
     stazione_pressa       pressa;
     stazione_GOM          gom;
     AGV                   agv;
+
+    int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
+    int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza.
    
     pezzo *pezzi_head;               //punta al primo elemento della linked list
-    int pezzi_completati;
+    int pezzi_completati;            //due contatori per le statistiche
     int pezzi_scartati;
     
     
 } cella_meccatronica;
-
-//funzioni di generica utilità
-//funzione per convertire un tipo enum in una stringa leggibile
-const char* status_pezzo_to_string (piece_status s);
-
-
 
 #endif

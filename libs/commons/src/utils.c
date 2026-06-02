@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../include/types.h"    // project headers with quotes, relative path
+#include "../include/utils.h"    // project headers with quotes, relative path
 
 const char* status_pezzo_to_string(piece_status s){
     switch (s){
@@ -27,8 +27,5 @@ const char* status_station_to_string(station_status s){
         case BROKEN:        return 'BROKEN';
         default:            return 'ERROR';
     }
-    
-
-    
 }
 
