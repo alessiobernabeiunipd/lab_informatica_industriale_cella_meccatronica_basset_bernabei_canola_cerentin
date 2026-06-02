@@ -1,32 +1,43 @@
+#include <stdio.h>
+#include <stdbool>
+
 #include "buffer.h"
 
-int buffer[BUFFER_SIZE] = {0};
-buffer[0] = NULL;
+struct pezzo *buffer[BUFFER_SIZE];
+
+for(i = 0; i<BUFFER_SIZE-1; i++){
+    buffer[i].id_pezzo = 0;
+    buffer[i].ID_ordine = 0;
+    buffer[i].priorità = 0;
+}
 
 
-void new_item(int *part_data){
+
+void new_item(struct pezzo *p){
     if(is_full())
-        break;
+        break; //inserire messaggio di errore
 
     else{
         for(i = 0; i<BUFFER_SIZE-1; i++){
-            if(buffer[i] == NULL && i<=BUFFER_SIZE-2){
-                buffer[i+1] = NULL;
-                buffer[i] = part_data.part.id;
+            if(buffer[i].id_pezzo == 0){
+                buffer[i] = p;
                 break;
             }
-            else if(buffer[i] == NULL && i>BUFFER_SIZE-2)
-                buffer[i] = part_data.part.id;
         }
     }
 }
 
-part_data take_item(){
+struct pezzo *take_item(){
+    struct pezzo *in_uscita = buffer[0];
+    for(i = 0; i<BUFFER_SIZE-2; i++)
+        buffer[i] = buffer[i+1];
 
+    buffer[BUFFER_SIZE-1] = 0
+    return in_uscita;
 }
 
 bool is_full(){
-    if buffer[BUFFER_SIZE-1] == NULL
+    if buffer[BUFFER_SIZE-1].id_pezzo == 0
         return false;
 
     else
