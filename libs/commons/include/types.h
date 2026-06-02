@@ -40,7 +40,7 @@ typedef struct pezzo{
     int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine. Utile per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
     int priorità; 
     int deadline_ticks;         // entro quando devo completare il pezzo? sono nei tempi richiesti?
-    valori_nominali *tempi_nom; // pointer into the catalogue array 
+    valori_nominali *valori_nom; // pointer into the catalogue array 
     piece_status stato;
     timestamps ts;
     int tempo_laminazione_effettivo;
