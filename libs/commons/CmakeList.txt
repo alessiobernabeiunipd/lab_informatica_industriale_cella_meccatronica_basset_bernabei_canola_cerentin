@@ -1,7 +1,7 @@
-project(common_lib
+project(commons_lib
         LANGUAGE C
         DESCRIPTION "libreria definizione tipi e funzioni di utilità")
 
-add_library(common STATIC src/utils.c)
+add_library(commons STATIC src/utils.c)
 
-target_include_directories(common PUBLIC include)
+target_include_directories(commons PUBLIC include)
