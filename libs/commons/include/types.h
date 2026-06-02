@@ -48,7 +48,57 @@ typedef struct pezzo{
     int tempo_pressa_effettivo; 
     int lead_time; 
     float deviazione_gom;        //inizializzato a zero
-    struct Pezzo *next;
+    struct pezzo *next;
 }pezzo;
+
+typedef enum{
+    IDLE,
+    BUSY,
+    BROKEN,
+}station_status;
+
+typedef struct { 
+    station_status stato;
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+}AGV;
+
+typedef struct { 
+    station_status stato;
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+}stazione_laminazione;
+
+typedef struct { 
+    station_status stato;
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+}stazione_pressa;
+
+typedef struct { 
+    station_status stato;
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+    float temperatura_GOM;
+}stazione_GOM;
+
+typedef struct {
+    stazione_laminazione  laminazione;
+    stazione_pressa       pressa;
+    stazione_GOM          gom;
+    AGV                   agv;
+   
+    pezzo *pezzi_head;               //punta al primo elemento della linked list
+    int pezzi_completati;
+    int pezzi_scartati;
+    
+    
+} cella_meccatronica;
+
+//funzioni di generica utilità
+//funzione per convertire un tipo enum in una stringa leggibile
+const char* status_pezzo_to_string (piece_status s);
+
+
 
 #endif
