@@ -1,5 +1,5 @@
 project(commons_lib
-        LANGUAGE C
+        LANGUAGES C
         DESCRIPTION "libreria definizione tipi e funzioni di utilità")
 
 add_library(commons STATIC src/utils.c)
