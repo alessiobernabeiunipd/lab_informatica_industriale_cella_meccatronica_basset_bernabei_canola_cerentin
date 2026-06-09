@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef utils_h
+#define utils_h
 
 #include "types.h"
 //funzioni di generica utilità
