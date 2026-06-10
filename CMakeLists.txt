@@ -9,7 +9,7 @@ else()
 endif()
 
 set(TARGET_GROUP test CACHE STRING "Group to build") # posso alternare tra run di test o di simulazione 
-#La modalità scelta va selezionata da terminale con "cmake .. -DTARGET_GROUP=production" 
+#La modalità scelta va selezionata da terminale con "cmake -DTARGET_GROUP = opzione_desiderata"
 #prima di chiamare "make"
 
 add_subdirectory(libs/commons)
