@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../include/utils.h"    // project headers with quotes, relative path
+#include "utils.h"    
 
 const char* status_pezzo_to_string(piece_status s){
     switch (s){

@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef types_h
+#define types_h
 
 //struttura che contiene i tempi come istanti temporali in cui il pezzo compie un'azione determinata
 // uscita - ingresso = lead time; i tre inizio_x vengono impiegati per il tempo macchina effettivo
