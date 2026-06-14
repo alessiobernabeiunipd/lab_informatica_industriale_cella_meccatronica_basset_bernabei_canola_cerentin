@@ -1,5 +1,5 @@
 project (parser_lib
-        LANGUAGE C
+        LANGUAGES C
         DESCRIPTION "libreria di parsing")
 
 add_library( parsing STATIC src/parsing.c)

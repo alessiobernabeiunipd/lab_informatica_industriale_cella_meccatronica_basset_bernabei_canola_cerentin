@@ -15,7 +15,7 @@ set(TARGET_GROUP test CACHE STRING "Group to build")
 # prima di chiamare "make"
 
 add_subdirectory(libs/commons)
-# add_subdirectory(libs/parsing)
+add_subdirectory(libs/parsing)
 
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)
