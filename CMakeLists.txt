@@ -13,6 +13,7 @@ set(TARGET_GROUP test CACHE STRING "Group to build") # posso alternare tra run d
 #prima di chiamare "make"
 
 add_subdirectory(libs/commons)
+add_subdirectory(libs/model)
 #add_subdirectory(libs/parsing)
 
 if(TARGET_GROUP STREQUAL simulation)
@@ -21,6 +22,10 @@ elseif(TARGET_GROUP STREQUAL test)
     include(CTest)
     add_subdirectory(external/Unity)
     add_subdirectory(test/test_common_structs)
+elseif(TARGET_GROUP STREQUAL test_model)
+    include(CTest)
+    add_subdirectory(external/Unity)
+    add_subdirectory(test/test_model)
 else()
     message(FATAL_ERROR "Given TARGET_GROUP unknown")
 endif()
