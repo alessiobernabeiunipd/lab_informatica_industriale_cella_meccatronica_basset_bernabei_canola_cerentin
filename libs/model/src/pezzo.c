@@ -16,3 +16,71 @@ void add_other_pezzo( pezzo *list_head, pezzo *to_add){
     }
     list_head->next = to_add;
 }
+
+void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add, piece_status status){           
+    pezzo *previous = last_pezzo_with_status(list_head, status);
+    pezzo *p = copy_pezzo(to_add);
+    if(p == NULL) return;
+    reset_pezzo(p);
+    if(previous == NULL){
+        add_other_pezzo(list_head,p);
+        return;
+    }
+    p->next = previous->next;
+    previous->next = p;
+}
+
+pezzo *first_pezzo_with_status(pezzo *list_head, piece_status status){
+    while(list_head != NULL && list_head->stato != status){
+        list_head = list_head->next;
+    }
+    return list_head;
+}
+
+pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status) {      //attraversa tutta la lista tenendosi traccia dell'ultimo nodo trovato con un certo status
+    pezzo *last = NULL;
+    while (list_head != NULL) {
+        if (list_head->stato == status) {
+            last = list_head;
+        }
+        list_head = list_head->next;
+    }
+    return last;
+}
+
+pezzo *new_pezzo(){
+    pezzo *new = malloc(sizeof(pezzo));
+    if(new == NULL) return NULL;
+    return new;
+}
+
+void modify_status(pezzo *p, piece_status new_status){
+    p->stato = new_status;
+}
+
+pezzo *copy_pezzo(pezzo *p){
+    pezzo *result = malloc(sizeof(pezzo));
+    if(result == NULL) return NULL;             //protects against malloc failure, propagates error to caller
+    *result = *p;
+    result->next = NULL;                        //to copy a single piece and not the rest of the list after it
+    return result;
+}
+
+void reset_pezzo(pezzo *p){
+    p->stato = CREATED;
+    p->ts.ingresso=0;
+    p->ts.inizio_laminazione=0;
+    p->ts.inizio_pressa=0;
+    p->ts.inizio_gom=0;
+    p->ts.uscita=0;
+    p->tempo_laminazione_effettivo=0;
+    p->tempo_pressa_effettivo=0;
+    p->lead_time=0;
+    p->deviazione_gom=0;
+    p->next = NULL;
+}
+
+piece_status get_status(pezzo *p){
+    return p->stato;
+}
+
