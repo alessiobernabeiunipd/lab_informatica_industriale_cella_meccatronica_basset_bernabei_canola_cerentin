@@ -17,8 +17,8 @@ void add_other_pezzo( pezzo *list_head, pezzo *to_add){
     list_head->next = to_add;
 }
 
-void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add, piece_status status){           
-    pezzo *previous = last_pezzo_with_status(list_head, status);
+void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add){           
+    pezzo *previous = last_pezzo_with_status(list_head, WAITING_INPUT);
     pezzo *p = copy_pezzo(to_add);
     if(p == NULL) return;
     reset_pezzo(p);
@@ -51,6 +51,15 @@ pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status) {      //at
 pezzo *new_pezzo(){
     pezzo *new = malloc(sizeof(pezzo));
     if(new == NULL) return NULL;
+    reset_pezzo(new);
+    new->id_pezzo = 0;
+    new->ID_ordine = 0;
+    new->priorità = 0;
+    new->deadline_ticks = 0;
+    new->valori_nom.deviazione_max_gom = 0;
+    new->valori_nom.t_gom = 0;
+    new->valori_nom.t_laminazione_nominale = 0;
+    new->valori_nom.t_pressa_nominale = 0;
     return new;
 }
 

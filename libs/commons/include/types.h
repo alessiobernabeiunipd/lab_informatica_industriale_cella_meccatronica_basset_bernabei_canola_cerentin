@@ -41,7 +41,7 @@ typedef struct pezzo{
     int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
     int priorità; 
     int deadline_ticks;         // entro quando devo completare il pezzo? sono nei tempi richiesti?
-    valori_nominali *valori_nom; // puntatore all'array catalogo valori_nominali                            (sottostruttura statica)
+    valori_nominali valori_nom; // copia catalogo valori_nominali                            (sottostruttura statica)
     piece_status stato;             //monitora avanzamento del pezzo                                        (sottostruttura)
     timestamps ts;                  //contiene valori che verranno usati per le tre statistuche sottostanti (sottostruttura)
     int tempo_laminazione_effettivo;
