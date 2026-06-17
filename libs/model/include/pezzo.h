@@ -32,14 +32,18 @@ pezzo *new_pezzo();
 //modify status of a single piece passing the piece and the status to apply
 void modify_status(pezzo *p, piece_status new_status);
 
-//return ptr to copy of a pezzo, useful to add a pezzo to production 
+//return ptr to copy of a pezzo, useful to add a pezzo to production. the copied pezzo returned is a new indipendent allocation.
 pezzo *copy_pezzo(pezzo *p);
 
 //resets a pezzo counters and status to it's original state and next to NULL, useful after copying it to add it to production
 void reset_pezzo(pezzo *p);
 
-//returns the status
+//returns the status of the passed pezzo
 piece_status get_status(pezzo *p);
+
+/*updates nominal times with catalogue values, given the pointer to the piece and to the catalogue array. id_pezzo field needs to be initialized.
+Returns without doing anithing if the pointer to valori_nominali is NULL*/
+void set_nominal_times(pezzo *p, valori_nominali *v);
 
 
 #endif

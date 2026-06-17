@@ -23,6 +23,7 @@ typedef struct{
 //struttura per contenere gli status che può assumere il pezzo
 typedef enum{                                                                   
     CREATED, // letto dal CSV ma non ancora in lavorazione
+    TRAVELING,// in viaggio sull'AGV
     WAITING_INPUT, //in attesa nel buffer iniziale.
     IN_LAMINATION, // il pezzo sta venendo laminato
     WAITING_PRESS, // nel buffer pre-pressa.
@@ -83,19 +84,25 @@ typedef struct {
 }stazione_GOM;
 
 typedef struct {
-    stazione_laminazione  laminazione;
-    stazione_pressa       pressa;
-    stazione_GOM          gom;
-    AGV                   agv;
+    int magazzino_lam;
+    int magazzino_pressa;
+    int lam_pressa;
+}tempi_viaggio;
+
+typedef struct {
+    stazione_laminazione  *laminazione;
+    stazione_pressa       *pressa;
+    stazione_GOM          *gom;
+    AGV                   *agv;
+
+    tempi_viaggio tempi;
 
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
     int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza.
    
-    pezzo *pezzi_head;               //punta al primo elemento della linked list
+    pezzo *list_head;               //punta al primo elemento della linked list
     int pezzi_completati;            //due contatori per le statistiche
     int pezzi_scartati;
-    
-    
 } cella_meccatronica;
 
 #endif
