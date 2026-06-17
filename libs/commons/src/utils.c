@@ -7,7 +7,7 @@
 const char* status_pezzo_to_string(piece_status s){
     switch (s){
     case CREATED:           return "CREATED";
-    case TRAVELING:         return "TRAVELING"
+    case TRAVELING:         return "TRAVELING";
     case WAITING_INPUT:     return "WAITING_INPUT";
     case IN_LAMINATION:     return "IN_LAMINATION";
     case WAITING_PRESS:     return "WAITING_PRESS";
@@ -25,7 +25,6 @@ const char* status_station_to_string(station_status s){
     switch (s){
         case IDLE:          return "IDLE";
         case BUSY:          return "BUSY";
-        case BROKEN:        return "BROKEN";
         case COOLING:       return "COOLING";
         default:            return "ERROR";
     }

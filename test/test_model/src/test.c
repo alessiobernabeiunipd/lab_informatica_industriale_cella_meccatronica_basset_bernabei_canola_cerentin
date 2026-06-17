@@ -76,7 +76,7 @@ void test_add(){
     reset_pezzo(c);
     modify_status(a, IN_LAMINATION);
     modify_status(b, IN_LAMINATION);
-    modify_status(c, WAITING_INPUT);
+    modify_status(c, TRAVELING);
     add_pezzo(&list_head, a);
     add_pezzo(&list_head, b);
     add_pezzo(&list_head, c);

@@ -14,7 +14,7 @@ void test_status_pezzo_to_string(void)
 void test_status_station_to_string(void)
 {
     TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(IDLE));
-    TEST_ASSERT_EQUAL_STRING("BROKEN", status_station_to_string(BROKEN));
+    TEST_ASSERT_EQUAL_STRING("COOLING", status_station_to_string(COOLING));
     TEST_ASSERT_EQUAL_STRING("BUSY", status_station_to_string(BUSY));
 }
 

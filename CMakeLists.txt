@@ -9,7 +9,7 @@ else()
 endif()
 
 set(TARGET_GROUP test CACHE STRING "Group to build") # posso alternare tra run di test o di simulazione 
-#La modalità scelta va selezionata da terminale con "cmake -DTARGET_GROUP = opzione_desiderata"
+#La modalità scelta va selezionata da terminale con "cmake .. -DTARGET_GROUP=opzione_desiderata" dentro la cartella di build
 #prima di chiamare "make"
 
 add_subdirectory(libs/commons)
@@ -22,9 +22,6 @@ elseif(TARGET_GROUP STREQUAL test)
     include(CTest)
     add_subdirectory(external/Unity)
     add_subdirectory(test/test_common_structs)
-elseif(TARGET_GROUP STREQUAL test_model)
-    include(CTest)
-    add_subdirectory(external/Unity)
     add_subdirectory(test/test_model)
 else()
     message(FATAL_ERROR "Given TARGET_GROUP unknown")

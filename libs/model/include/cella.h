@@ -70,7 +70,8 @@ void laminazione_tick(stazione_laminazione *lam);
 stazione_GOM *init_GOM();
 void gom_load(stazione_GOM *gom, pezzo *p, int tick );
 void gom_tick(stazione_GOM *gom);
-pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick, int *ok, int *scrap, pezzo *list_head);
+pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick);
 piece_status gom_evaluate(pezzo *p);
 
+void quality_control ( int *ok, int *scrap, pezzo *list_head, pezzo *p);
 #endif
