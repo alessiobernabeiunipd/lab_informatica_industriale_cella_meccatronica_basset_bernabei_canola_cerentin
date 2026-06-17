@@ -1,9 +1,10 @@
-/*libreria per inizializzare e modificare pezzi tramite il passaggio della lista
-concatenata*/
+/*libreria per inizializzare e modificare pezzi e lista tramite il passaggio della lista
+concatenata o del singolo pezzo*/
 #ifndef PEZZO_H
 #define PEZZO_H
 
 #include "../../commons/include/utils.h"
+#include <stdlib.h>
 
 //OPERAZIONS ON THE LIST
 

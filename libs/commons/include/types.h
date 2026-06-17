@@ -47,6 +47,8 @@ typedef struct pezzo{
     timestamps ts;                  //contiene valori che verranno usati per le tre statistuche sottostanti (sottostruttura)
     int tempo_laminazione_effettivo;
     int tempo_pressa_effettivo; 
+    int tempo_gom_effettivo;
+
     int lead_time; 
     float deviazione_gom;        //inizializzato a zero
     struct pezzo *next;
@@ -55,7 +57,7 @@ typedef struct pezzo{
 typedef enum{
     IDLE,
     BUSY,
-    BROKEN,
+    COOLING,
 }station_status;
 
 typedef struct { 
@@ -72,15 +74,17 @@ typedef struct {
 
 typedef struct { 
     station_status stato;
-    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se cooling metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
 }stazione_pressa;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    int tick_cooling_rimasti;
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    float temperatura_GOM;
+    float t_GOM;
+    float t_amb;
 }stazione_GOM;
 
 typedef struct {

@@ -26,7 +26,12 @@ const char* status_station_to_string(station_status s){
         case IDLE:          return "IDLE";
         case BUSY:          return "BUSY";
         case BROKEN:        return "BROKEN";
+        case COOLING:       return "COOLING";
         default:            return "ERROR";
     }
 }
 
+float random_float(float min, float max) {
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
+ 

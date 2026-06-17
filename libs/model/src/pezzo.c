@@ -1,4 +1,4 @@
-#include <stdlib.h>
+
 #include "../include/pezzo.h"
 
 void add_pezzo( pezzo **list_head, pezzo *to_add){
@@ -18,7 +18,7 @@ void add_other_pezzo( pezzo *list_head, pezzo *to_add){
 }
 
 void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add){           
-    pezzo *previous = last_pezzo_with_status(list_head, WAITING_INPUT);
+    pezzo *previous = last_pezzo_with_status(list_head, TRAVELING);
     pezzo *p = copy_pezzo(to_add);
     if(p == NULL) return;
     reset_pezzo(p);
@@ -84,6 +84,7 @@ void reset_pezzo(pezzo *p){
     p->ts.uscita=0;
     p->tempo_laminazione_effettivo=0;
     p->tempo_pressa_effettivo=0;
+    p->tempo_gom_effettivo=0;
     p->lead_time=0;
     p->deviazione_gom=0;
     p->next = NULL;
@@ -93,3 +94,7 @@ piece_status get_status(pezzo *p){
     return p->stato;
 }
 
+void set_nominal_times(pezzo *p, valori_nominali *v){
+    if (v == NULL) return;
+    p->valori_nom = v[p->id_pezzo - 1];
+}
