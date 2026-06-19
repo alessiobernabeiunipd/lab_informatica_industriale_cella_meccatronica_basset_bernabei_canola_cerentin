@@ -31,7 +31,7 @@ typedef struct pezzo{
     int tempo_pressa_effettivo; 
     int lead_time; 
     float deviazione_gom;        //inizializzato a zero
-    struct Pezzo *next;
+    struct pezzo *next;
 }pezzo;
 
 /*Adding new item to the buffer*/

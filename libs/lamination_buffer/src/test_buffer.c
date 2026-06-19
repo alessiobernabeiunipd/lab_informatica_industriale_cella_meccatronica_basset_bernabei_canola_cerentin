@@ -4,26 +4,24 @@
 
 #include "buffer.h"
 
-    typedef struct pezzo{
-    int id_pezzo;
-    int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine. Utile per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
-    int priorità; 
-    int deadline_ticks;         // entro quando devo completare il pezzo? sono nei tempi richiesti?
-    //valori_nominali *tempi_nom; // pointer into the catalogue array 
-    //piece_status stato;
-    //timestamps ts;
-    int tempo_laminazione_effettivo;
-    int tempo_pressa_effettivo; 
-    int lead_time; 
-    float deviazione_gom;        //inizializzato a zero
-    struct Pezzo *next;
-    }pezzo;
+    void deleting(struct pezzo *head){
+        struct pezzo *current = head;
+        struct pezzo *seg;
+
+        while(current != NULL){
+            seg = current->next;
+            free(current);
+            current = seg;
+        }
+    }
 
 int main(){
 
     struct pezzo *head = NULL;
 
-    for(int i = 0; i < BUFFER_SIZE-1; i++){
+    struct pezzo *output = NULL;
+
+    for(int i = 0; i < BUFFER_SIZE; i++){
         struct pezzo *nuovo_pezzo;
 
         nuovo_pezzo = malloc(sizeof(struct pezzo));
@@ -39,5 +37,29 @@ int main(){
         new_item(nuovo_pezzo);
     }
 
-    
+    for(int i = 0; i < BUFFER_SIZE; i++){
+        struct pezzo *nuovo = take_item();
+        if(nuovo == NULL){
+            fprintf(stderr, "Warning: take_item() returned NULL at iteration %d\n", i);
+            break;
+        }
+        nuovo->next = output;
+        output = nuovo;
+    }
+
+    struct pezzo *p;
+    for(p = head; p != NULL; p = p->next){
+        printf("Pezzo ID: %d", p->id_pezzo);
+        printf("\n");
+    }
+
+    for(p = output; p != NULL; p = p->next){
+        printf("Pezzo ID: %d", p->id_pezzo);
+        printf("\n");
+    }
+
+    deleting(head);
+    deleting(output);
+
+
 }
