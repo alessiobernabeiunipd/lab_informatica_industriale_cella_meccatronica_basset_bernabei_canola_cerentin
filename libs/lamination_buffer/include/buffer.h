@@ -12,9 +12,6 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <stdio.h>
-#include <stdbool.h>
-
 #define BUFFER_SIZE 6
 
 //pezzo che viene lavorato, una struct definisce un pezzo singolo. 
@@ -34,6 +31,12 @@ typedef struct pezzo{
     struct pezzo *next;
 }pezzo;
 
+/*i dati delle strutture vengono salvate in un array di dimensione predefinita BUFFER_SIZE*/
+static struct pezzo *buffer[BUFFER_SIZE];
+
+/*Inizializza il buffer allocando la memoria nel heap*/
+void initialize();
+
 /*Adding new item to the buffer*/
 void new_item(struct pezzo *p);
 
@@ -45,5 +48,8 @@ bool is_full();
 
 /*Controlla se il buffer è vuoto*/
 bool is_empty();
+
+/*libera lo spazio di memoria allocato per il buffer*/
+bool terminate();
 
 #endif

@@ -19,9 +19,9 @@ int main(){
 
     struct pezzo *head = NULL;
 
-    struct pezzo *output = NULL;
+    initialize();
 
-    for(int i = 0; i < BUFFER_SIZE; i++){
+    for(int i = 0; i <= BUFFER_SIZE; i++){
         struct pezzo *nuovo_pezzo;
 
         nuovo_pezzo = malloc(sizeof(struct pezzo));
@@ -37,14 +37,16 @@ int main(){
         new_item(nuovo_pezzo);
     }
 
-    for(int i = 0; i < BUFFER_SIZE; i++){
+    for(int i = 0; i <= BUFFER_SIZE; i++){
         struct pezzo *nuovo = take_item();
-        if(nuovo == NULL){
-            fprintf(stderr, "Warning: take_item() returned NULL at iteration %d\n", i);
-            break;
+        if(nuovo != NULL){
+            nuovo->next = head;
+            head = nuovo;
         }
-        nuovo->next = output;
-        output = nuovo;
+        else{
+            printf("Error: Il buffer è vuoto, restituito NULL\n");
+            free(nuovo);
+        }
     }
 
     struct pezzo *p;
@@ -53,13 +55,9 @@ int main(){
         printf("\n");
     }
 
-    for(p = output; p != NULL; p = p->next){
-        printf("Pezzo ID: %d", p->id_pezzo);
-        printf("\n");
-    }
+    free(p);
 
     deleting(head);
-    deleting(output);
 
-
+    terminate();
 }
