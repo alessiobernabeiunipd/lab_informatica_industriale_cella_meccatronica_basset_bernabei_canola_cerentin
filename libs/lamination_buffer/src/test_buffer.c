@@ -31,10 +31,10 @@ int main(){
         }
 
         nuovo_pezzo->id_pezzo = i+1;
+        new_item(nuovo_pezzo);
         nuovo_pezzo->next = head;
         head = nuovo_pezzo;
 
-        new_item(nuovo_pezzo);
     }
 
     for(int i = 0; i <= BUFFER_SIZE; i++){
@@ -49,15 +49,15 @@ int main(){
         }
     }
 
-    struct pezzo *p;
-    for(p = head; p != NULL; p = p->next){
-        printf("Pezzo ID: %d", p->id_pezzo);
+    int i = 0;
+    while(i<16){
+        printf("Pezzo ID: %d", head->id_pezzo);
         printf("\n");
+        head = head->next;
+        i++;
     }
 
-    free(p);
+    //deleting(head);
 
-    deleting(head);
-
-    terminate();
+    //terminate();
 }

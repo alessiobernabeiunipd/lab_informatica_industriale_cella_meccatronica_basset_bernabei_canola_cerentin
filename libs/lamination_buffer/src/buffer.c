@@ -7,12 +7,13 @@
 
 void initialize(){
     for(int i = 0; i < BUFFER_SIZE; i++){
-        buffer[i] = malloc(sizeof(struct pezzo));
+        /*buffer[i] = malloc(sizeof(struct pezzo));
         if (buffer[i] == NULL){
             printf("Error: malloc() failed in initialize()\n");
             exit(EXIT_FAILURE);
         }
-        buffer[i]->id_pezzo = 0;
+        buffer[i]->id_pezzo = 0;*/
+        buffer[i] = NULL;
     }
 }
 
@@ -22,7 +23,7 @@ void new_item(struct pezzo *p){
 
     else{
         for(int i = 0; i <= BUFFER_SIZE-1; i++){
-            if(buffer[i]->id_pezzo == 0){
+            if(buffer[i] == NULL){
                 buffer[i] = p;
                 break;
             }
@@ -39,13 +40,13 @@ struct pezzo *take_item(){
         for(int i = 0; i <= BUFFER_SIZE-2; i++)
             buffer[i] = buffer[i+1];
 
-        buffer[BUFFER_SIZE-1]->id_pezzo = 0;
+        buffer[BUFFER_SIZE-1] = NULL;
         return in_uscita;
     }
 }
 
 bool is_full(){
-    if(buffer[BUFFER_SIZE-1]->id_pezzo == 0)
+    if(buffer[BUFFER_SIZE-1] == NULL)
         return false;
 
     else{
@@ -55,7 +56,7 @@ bool is_full(){
 }
 
 bool is_empty(){
-    if(buffer[0]->id_pezzo == 0){
+    if(buffer[0] == NULL){
         printf("Error: buffer is empty\n");
         return true;
     }
