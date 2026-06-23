@@ -4,20 +4,18 @@
 
 #include "buffer.h"
 
-    void deleting(struct pezzo *head){
-        struct pezzo *current = head;
-        struct pezzo *seg;
+    void print_list(Pezzo *head){
+        Pezzo *current = head;
 
         while(current != NULL){
-            seg = current->next;
-            free(current);
-            current = seg;
+            printf("ID Pezzo: %d\n", current->id_pezzo);
+            current = current->next;
         }
     }
 
 int main(){
 
-    struct pezzo *head = NULL;
+    Pezzo *head = NULL;
 
     initialize();
 
@@ -26,38 +24,38 @@ int main(){
 
         nuovo_pezzo = malloc(sizeof(struct pezzo));
         if (nuovo_pezzo == NULL){
-            printf("Error: malloc() failed in main()\n");
+            printf("Error: malloc() failed in main() while adding new item\n");
             exit(EXIT_FAILURE);
         }
 
         nuovo_pezzo->id_pezzo = i+1;
-        new_item(nuovo_pezzo);
         nuovo_pezzo->next = head;
         head = nuovo_pezzo;
 
+        new_item(nuovo_pezzo);
     }
+
+    Pezzo *output = NULL;
 
     for(int i = 0; i <= BUFFER_SIZE; i++){
-        struct pezzo *nuovo = take_item();
+        struct pezzo *nuovo;
+
+        nuovo = malloc(sizeof(struct pezzo));
+        if (nuovo == NULL){
+            printf("Error: malloc() failed in main() while taking item\n");
+            exit(EXIT_FAILURE);
+        }   
+
+        nuovo = take_item();
         if(nuovo != NULL){
-            nuovo->next = head;
-            head = nuovo;
+            nuovo->next = output;
+            output = nuovo;
         }
         else{
-            printf("Error: Il buffer è vuoto, restituito NULL\n");
-            free(nuovo);
+            printf("Error: buffer is empty, cannot take item\n");
         }
     }
 
-    int i = 0;
-    while(i<16){
-        printf("Pezzo ID: %d", head->id_pezzo);
-        printf("\n");
-        head = head->next;
-        i++;
-    }
-
-    //deleting(head);
-
-    //terminate();
+    print_list(head);
+    print_list(output);
 }
