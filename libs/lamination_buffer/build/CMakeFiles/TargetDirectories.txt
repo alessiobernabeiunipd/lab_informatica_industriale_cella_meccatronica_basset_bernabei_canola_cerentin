@@ -1,4 +1,4 @@
 /home/robyc/LII-25-26/progetto/lab_informatica_industriale_cella_meccatronica_basset_bernabei_canola_cerentin/libs/lamination_buffer/build/CMakeFiles/buffer.dir
-/home/robyc/LII-25-26/progetto/lab_informatica_industriale_cella_meccatronica_basset_bernabei_canola_cerentin/libs/lamination_buffer/build/CMakeFiles/buffer_app_test.dir
+/home/robyc/LII-25-26/progetto/lab_informatica_industriale_cella_meccatronica_basset_bernabei_canola_cerentin/libs/lamination_buffer/build/CMakeFiles/piu_buffer_test.dir
 /home/robyc/LII-25-26/progetto/lab_informatica_industriale_cella_meccatronica_basset_bernabei_canola_cerentin/libs/lamination_buffer/build/CMakeFiles/edit_cache.dir
 /home/robyc/LII-25-26/progetto/lab_informatica_industriale_cella_meccatronica_basset_bernabei_canola_cerentin/libs/lamination_buffer/build/CMakeFiles/rebuild_cache.dir

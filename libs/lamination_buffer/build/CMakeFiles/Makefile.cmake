@@ -41,5 +41,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/buffer.dir/DependInfo.cmake"
-  "CMakeFiles/buffer_app_test.dir/DependInfo.cmake"
+  "CMakeFiles/piu_buffer_test.dir/DependInfo.cmake"
   )

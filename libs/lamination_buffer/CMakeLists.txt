@@ -14,9 +14,9 @@ target_include_directories(buffer
 
 add_library(LII::buffer ALIAS buffer)
 
-add_executable( buffer_app_test src/test_buffer.c )
+add_executable( piu_buffer_test src/test_piu_buffer.c )
 
-target_link_libraries( buffer_app_test
+target_link_libraries( piu_buffer_test
 	PUBLIC
 	LII::buffer
 )

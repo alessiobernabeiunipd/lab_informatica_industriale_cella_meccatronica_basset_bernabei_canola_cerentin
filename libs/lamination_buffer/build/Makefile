@@ -130,17 +130,17 @@ buffer/fast:
 .PHONY : buffer/fast
 
 #=============================================================================
-# Target rules for targets named buffer_app_test
+# Target rules for targets named piu_buffer_test
 
 # Build rule for target.
-buffer_app_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 buffer_app_test
-.PHONY : buffer_app_test
+piu_buffer_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 piu_buffer_test
+.PHONY : piu_buffer_test
 
 # fast build rule for target.
-buffer_app_test/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/buffer_app_test.dir/build.make CMakeFiles/buffer_app_test.dir/build
-.PHONY : buffer_app_test/fast
+piu_buffer_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/piu_buffer_test.dir/build.make CMakeFiles/piu_buffer_test.dir/build
+.PHONY : piu_buffer_test/fast
 
 src/buffer.o: src/buffer.c.o
 .PHONY : src/buffer.o
@@ -166,29 +166,29 @@ src/buffer.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/buffer.dir/build.make CMakeFiles/buffer.dir/src/buffer.c.s
 .PHONY : src/buffer.c.s
 
-src/test_buffer.o: src/test_buffer.c.o
-.PHONY : src/test_buffer.o
+src/test_piu_buffer.o: src/test_piu_buffer.c.o
+.PHONY : src/test_piu_buffer.o
 
 # target to build an object file
-src/test_buffer.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/buffer_app_test.dir/build.make CMakeFiles/buffer_app_test.dir/src/test_buffer.c.o
-.PHONY : src/test_buffer.c.o
+src/test_piu_buffer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/piu_buffer_test.dir/build.make CMakeFiles/piu_buffer_test.dir/src/test_piu_buffer.c.o
+.PHONY : src/test_piu_buffer.c.o
 
-src/test_buffer.i: src/test_buffer.c.i
-.PHONY : src/test_buffer.i
+src/test_piu_buffer.i: src/test_piu_buffer.c.i
+.PHONY : src/test_piu_buffer.i
 
 # target to preprocess a source file
-src/test_buffer.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/buffer_app_test.dir/build.make CMakeFiles/buffer_app_test.dir/src/test_buffer.c.i
-.PHONY : src/test_buffer.c.i
+src/test_piu_buffer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/piu_buffer_test.dir/build.make CMakeFiles/piu_buffer_test.dir/src/test_piu_buffer.c.i
+.PHONY : src/test_piu_buffer.c.i
 
-src/test_buffer.s: src/test_buffer.c.s
-.PHONY : src/test_buffer.s
+src/test_piu_buffer.s: src/test_piu_buffer.c.s
+.PHONY : src/test_piu_buffer.s
 
 # target to generate assembly for a file
-src/test_buffer.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/buffer_app_test.dir/build.make CMakeFiles/buffer_app_test.dir/src/test_buffer.c.s
-.PHONY : src/test_buffer.c.s
+src/test_piu_buffer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/piu_buffer_test.dir/build.make CMakeFiles/piu_buffer_test.dir/src/test_piu_buffer.c.s
+.PHONY : src/test_piu_buffer.c.s
 
 # Help Target
 help:
@@ -199,13 +199,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... buffer"
-	@echo "... buffer_app_test"
+	@echo "... piu_buffer_test"
 	@echo "... src/buffer.o"
 	@echo "... src/buffer.i"
 	@echo "... src/buffer.s"
-	@echo "... src/test_buffer.o"
-	@echo "... src/test_buffer.i"
-	@echo "... src/test_buffer.s"
+	@echo "... src/test_piu_buffer.o"
+	@echo "... src/test_piu_buffer.i"
+	@echo "... src/test_piu_buffer.s"
 .PHONY : help
 
 

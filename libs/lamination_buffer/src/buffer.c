@@ -4,32 +4,38 @@
 
 #include "buffer.h"
 
-void initialize(){
-    for(int i = 0; i <= BUFFER_SIZE-1; i++)
-        buffer[i] = 0;
+Pezzo **initialize(){
+    Pezzo **buffer = malloc(BUFFER_SIZE * sizeof(Pezzo *));
+    for(int i = 0; i < BUFFER_SIZE; i++)
+        buffer[i] = NULL;
+    return buffer;
 }
 
-void new_item(Pezzo *p){
-    if(is_full())
+void new_item(Pezzo *head, Pezzo **buffer){
+    if(is_full(buffer)){
+        printf("Errore: questo buffer è pieno\n");
         return;
+    }
 
     else{
-        for(int i = 0; i <= BUFFER_SIZE-1; i++){
+        for(int i = 0; i < BUFFER_SIZE; i++){
             if(buffer[i] == NULL){
-                buffer[i] = p;
+                buffer[i] = head;
                 break;
             }
         }
     }
 }
 
-Pezzo *take_item(){
-    if(is_empty())
+Pezzo *take_item(Pezzo **buffer){
+    if(is_empty(buffer)){
+        printf("Errore: questo buffer è vuoto\n");
         return NULL;
-    
+    }
+
     else{
         Pezzo *in_uscita = buffer[0];
-        for(int i = 0; i <= BUFFER_SIZE-2; i++)
+        for(int i = 0; i < BUFFER_SIZE-1; i++)
             buffer[i] = buffer[i+1];
 
         buffer[BUFFER_SIZE-1] = NULL;
@@ -37,22 +43,25 @@ Pezzo *take_item(){
     }
 }
 
-bool is_full(){
+bool is_full(Pezzo **buffer){
     if(buffer[BUFFER_SIZE-1] == NULL)
         return false;
 
-    else{
-        printf("Error: buffer is full\n");
+    else
         return true;
-    }
 }
 
-bool is_empty(){
-    if(buffer[0] == NULL){
-        printf("Error: buffer is empty\n");
+bool is_empty(Pezzo **buffer){
+    if(buffer[0] == NULL)
         return true;
-    }
 
     else
         return false;
+}
+
+void terminate(Pezzo **buffer){
+    for(int i = 0; i < BUFFER_SIZE; i++){
+        free(buffer[i]);
+    }
+    free(buffer);
 }

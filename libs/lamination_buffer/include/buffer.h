@@ -1,21 +1,20 @@
-/*Take the element from the struct to insert it in the array.
- *Put the element in the first free spot.
- *If there is no space left in the buffer send an error message
- *to the controller
- *
- *Function needed:
- *New item in the buffer
- *Remove item from the buffer
- *Check the buffer state
+/*libreria di funzionalità del buffer pre laminazione, contiene funzioni 
+ *generiche per la gestione di un buffer con logica FIFO.
+ *Ogni volta che viene aggionto un nuovo elemento questo viene inserito
+ *nel primo indice libero dell'array.
+ *Ogni volta che viene prelevato un elemento lo si acquisisce dal primo
+ *elemento dell'array.
+ *Si tratta di un array di puntatori che indicano i nodi della lista
+ *concatenata che risultano all'interno del buffer.
 */
 
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#define BUFFER_SIZE 6
+#define BUFFER_SIZE 4
 
 //pezzo che viene lavorato, una struct definisce un pezzo singolo. 
-//linked list
+//linked list, probabilmente da eliminare.
 typedef struct pezzo{
     int id_pezzo;
     int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine. Utile per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
@@ -31,22 +30,28 @@ typedef struct pezzo{
     struct pezzo *next;
 }Pezzo;
 
-/*i dati delle strutture vengono salvate in un array di dimensione predefinita BUFFER_SIZE*/
-static Pezzo *buffer[BUFFER_SIZE];
+/*I puntatori alle strutture vengono salvati in un array di dimensione
+ *predefinita BUFFER_SIZE
+*/
+//static Pezzo *buffer[BUFFER_SIZE];
 
-/*Inizializza il buffer nello stack*/
-void initialize();
+/*Inizializza un buffer vuoto nell'heap e ne restituisce un puntatore*/
+Pezzo **initialize();
 
-/*Adding new item to the buffer*/
-void new_item(Pezzo *p);
+/*Aggiunge un nuovo elemento al buffer, per precauzione esegue una funzione
+ *di controllo is_full*/
+void new_item(Pezzo *head, Pezzo **buffer);
 
-/*Removing item from the buffer*/
-Pezzo *take_item();
+/*Rimuove un elemento dal buffer, per precauzione esegue una funzione
+ *di controllo is_empty*/
+Pezzo *take_item(Pezzo **buffer);
 
-/*Checking the buffer state*/
-bool is_full();
+/*Verifica se il buffer ha ancora spazio a disposizione*/
+bool is_full(Pezzo **buffer);
 
-/*Controlla se il buffer è vuoto*/
-bool is_empty();
+/*Verifica se il buffer è vuoto*/
+bool is_empty(Pezzo **buffer);
 
+/*Elimina la memoria occupata dal buffer*/
+void terminate(Pezzo **buffer);
 #endif
