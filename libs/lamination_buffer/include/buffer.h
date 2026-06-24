@@ -30,28 +30,23 @@ typedef struct pezzo{
     struct pezzo *next;
 }Pezzo;
 
-/*I puntatori alle strutture vengono salvati in un array di dimensione
- *predefinita BUFFER_SIZE
-*/
-//static Pezzo *buffer[BUFFER_SIZE];
-
 /*Inizializza un buffer vuoto nell'heap e ne restituisce un puntatore*/
-Pezzo **initialize();
+Pezzo **initialize(int buffer_size);
 
 /*Aggiunge un nuovo elemento al buffer, per precauzione esegue una funzione
  *di controllo is_full*/
-void new_item(Pezzo *head, Pezzo **buffer);
+void new_item(Pezzo *head, Pezzo **buffer, int buffer_size);
 
 /*Rimuove un elemento dal buffer, per precauzione esegue una funzione
  *di controllo is_empty*/
-Pezzo *take_item(Pezzo **buffer);
+Pezzo *take_item(Pezzo **buffer, int buffer_size);
 
 /*Verifica se il buffer ha ancora spazio a disposizione*/
-bool is_full(Pezzo **buffer);
+bool is_full(Pezzo **buffer, int buffer_size);
 
 /*Verifica se il buffer è vuoto*/
 bool is_empty(Pezzo **buffer);
 
 /*Elimina la memoria occupata dal buffer*/
-void terminate(Pezzo **buffer);
+void terminate(Pezzo **buffer, int buffer_size);
 #endif

@@ -1,61 +1,57 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "buffer.h"
 
-    void print_list(Pezzo *head){
-        Pezzo *current = head;
+void print_list(Pezzo *head){
+    Pezzo *current;
+    for(current = head; current != NULL; current = current->next)
+        printf("Pezzo ID: %d\n", current->id_pezzo);
 
-        while(current != NULL){
-            printf("ID Pezzo: %d\n", current->id_pezzo);
-            current = current->next;
-        }
-    }
+    printf("\n");
+}
 
-int main(){
-
+void main(){
     Pezzo *head = NULL;
 
-    initialize();
+    Pezzo **buffer = initialize();
 
-    for(int i = 0; i <= BUFFER_SIZE; i++){
-        struct pezzo *nuovo_pezzo;
+    int i = 0;
+    while(!is_full(buffer)){
+        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
 
-        nuovo_pezzo = malloc(sizeof(struct pezzo));
-        if (nuovo_pezzo == NULL){
-            printf("Error: malloc() failed in main() while adding new item\n");
+        if(nuovo_pezzo == NULL){
+            printf("Errore: memoria non allocata correttamente in main()\n");
             exit(EXIT_FAILURE);
         }
 
-        nuovo_pezzo->id_pezzo = i+1;
+        nuovo_pezzo->id_pezzo = i;
         nuovo_pezzo->next = head;
         head = nuovo_pezzo;
 
-        new_item(nuovo_pezzo);
+        i++;
+        new_item(nuovo_pezzo, buffer);
     }
 
     Pezzo *output = NULL;
 
-    for(int i = 0; i <= BUFFER_SIZE; i++){
-        struct pezzo *nuovo;
+    while(!is_empty(buffer)){
+        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
 
-        nuovo = malloc(sizeof(struct pezzo));
-        if (nuovo == NULL){
-            printf("Error: malloc() failed in main() while taking item\n");
+        if(nuovo_pezzo == NULL){
+            printf("Errore: memoria non allocata correttamente in main()\n");
             exit(EXIT_FAILURE);
-        }   
+        }
 
-        nuovo = take_item();
-        if(nuovo != NULL){
-            nuovo->next = output;
-            output = nuovo;
-        }
-        else{
-            printf("Error: buffer is empty, cannot take item\n");
-        }
+        nuovo_pezzo = take_item(buffer);
+        nuovo_pezzo->next = output;
+        output = nuovo_pezzo;
     }
+
 
     print_list(head);
     print_list(output);
+
+    terminate(buffer);
 }

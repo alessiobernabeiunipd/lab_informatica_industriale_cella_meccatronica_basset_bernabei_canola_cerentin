@@ -1,33 +1,30 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "buffer.h"
 
 void print_list(Pezzo *head){
-        Pezzo *current = head;
+    Pezzo *current;
+    for(current = head; current != NULL; current = current->next)
+        printf("Pezzo ID: %d\n", current->id_pezzo);
 
-        while(current != NULL){
-            printf("ID Pezzo: %d\n", current->id_pezzo);
-            current = current->next;
-        }
-        printf("\n");
-    }
+    printf("\n");
+}
 
 void main(){
-    Pezzo **buffer_a = initialize();
-    Pezzo **buffer_b = initialize();
-    Pezzo **buffer_c = initialize();
-
     Pezzo *head = NULL;
+
+    Pezzo **buffer_a = initialize(4);
+    Pezzo **buffer_b = initialize(7);
+    Pezzo **buffer_c = initialize(2);
+
     int i = 0;
+    while(!is_full(buffer_c, 2)){
+        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
 
-    while(!is_full(buffer_c)){
-        struct pezzo *nuovo_pezzo;
-
-        nuovo_pezzo = malloc(sizeof(struct pezzo));
-        if (nuovo_pezzo == NULL){
-            printf("Error: malloc() failed in main() while adding new item\n");
+        if(nuovo_pezzo == NULL){
+            printf("Errore: memoria non allocata correttamente in main()\n");
             exit(EXIT_FAILURE);
         }
 
@@ -35,45 +32,33 @@ void main(){
         nuovo_pezzo->next = head;
         head = nuovo_pezzo;
 
-        i += 10;
-
-        if(!is_full(buffer_a))
-            new_item(head, buffer_a);
-        else if(!is_full(buffer_b))
-            new_item(head, buffer_b);
-        else if(!is_full(buffer_c))
-            new_item(head, buffer_c);
+        i++;
+        if(!is_full(buffer_a, 4))
+            new_item(nuovo_pezzo, buffer_a, 4);
+        else if(!is_full(buffer_b, 7))
+            new_item(nuovo_pezzo, buffer_b, 7);
+        else if(!is_full(buffer_c, 2))
+            new_item(nuovo_pezzo, buffer_c, 2);
     }
 
-    Pezzo *output = NULL;
 
     while(!is_empty(buffer_a)){
-        struct pezzo *nuovo;
-
-        nuovo = malloc(sizeof(struct pezzo));
-        if (nuovo == NULL){
-            printf("Error: malloc() failed in main() while taking item\n");
-            exit(EXIT_FAILURE);
-        }   
+        Pezzo *nuovo_pezzo;
 
         if(!is_empty(buffer_c))
-            nuovo = take_item(buffer_c);
+            nuovo_pezzo = take_item(buffer_c, 2);
         else if(!is_empty(buffer_b))
-            nuovo = take_item(buffer_b);
+            nuovo_pezzo = take_item(buffer_b, 7);
         else if(!is_empty(buffer_a))
-            nuovo = take_item(buffer_a);
-            
-        nuovo->next = output;
-        output = nuovo;
+            nuovo_pezzo = take_item(buffer_a, 4);
+
+        printf("Pezzo ID: %d\n", nuovo_pezzo->id_pezzo);
     }
 
-    printf("I valori in ingresso sono:\n");
+    printf("\nLa lista di partenza era:\n");
     print_list(head);
 
-    printf("I valori in uscita sono:\n");
-    print_list(output);
-
-    terminate(buffer_a);
-    terminate(buffer_b);
-    terminate(buffer_c);
+    terminate(buffer_a, 4);
+    terminate(buffer_b, 7);
+    terminate(buffer_c, 2);
 }
