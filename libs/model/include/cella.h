@@ -4,11 +4,10 @@
 
 #include "pezzo.h"
 
-#define GOM_TMAX 27.0f //celsius
-#define GOM_TSTEP 0.2f //celsius
-#define GOM_COOLING_TIME 10 //tick
+#define GOM_TMAX 27.0f
 #define GOM_DEV_MIN 0.0f
 #define GOM_DEV_MAX 2.0f
+#define GOM_COOLING_TIME 10
 
 //initialize cella with ticks and stats to zero, structs in idle state and head list to NULL
 cella_meccatronica *init_cella();
@@ -69,7 +68,7 @@ void laminazione_tick(stazione_laminazione *lam);
 //initialize gom
 stazione_GOM *init_GOM();
 void gom_load(stazione_GOM *gom, pezzo *p, int tick );
-void gom_tick(stazione_GOM *gom);
+void gom_tick(stazione_GOM *gom, parametri_simulazione param);
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick);
 piece_status gom_evaluate(pezzo *p);
 

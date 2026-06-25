@@ -3,8 +3,7 @@ concatenata o del singolo pezzo*/
 #ifndef PEZZO_H
 #define PEZZO_H
 
-#include "../../commons/include/utils.h"
-#include <stdlib.h>
+#include "utils.h"
 
 //OPERAZIONS ON THE LIST
 

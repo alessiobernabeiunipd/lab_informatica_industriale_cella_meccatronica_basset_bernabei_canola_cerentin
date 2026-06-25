@@ -22,16 +22,7 @@ typedef struct {
 } ordine_entry;
 
 // Struttura per memorizzare i parametri generali di simulazione
-typedef struct {
-    float max_area_pressa;
-    int capacita_buffer_laminazione;
-    int capacita_buffer_pressa;
-    int capacita_buffer_gom;
-    char politica_controllo[32];
-    float temperatura_ambiente_iniziale;
-    float temperatura_incremento_minuto;
-    int durata_simulazione_max;
-} parametri_simulazione;
+//spostato in types.h
 
 // Ritorna il numero di elementi letti, alloca l'array di output in *entries. Ritorna -1 in caso di errore.
 int parse_catalogo(const char *filepath, catalogo_entry **entries);

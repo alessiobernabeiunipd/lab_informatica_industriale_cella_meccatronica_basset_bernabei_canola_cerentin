@@ -1,4 +1,4 @@
-#include "../include/cella.h"
+#include "cella.h"
 
 cella_meccatronica *init_cella(){
     cella_meccatronica *c = malloc(sizeof(cella_meccatronica));
@@ -36,7 +36,6 @@ cella_meccatronica *init_cella(){
     c->tempi.magazzino_pressa = 0;
 
     c->tick_corrente = 0;
-    c->tick_fine_simulazione = 0;
     c->pezzi_completati = 0;
     c->pezzi_scartati = 0;
 
@@ -195,20 +194,20 @@ void gom_load(stazione_GOM *gom, pezzo *p, int tick) {
     p->ts.inizio_gom = tick;
 }
 
-void gom_tick(stazione_GOM *gom) {
+void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
     if (gom->stato == IDLE) return;
     if (gom->stato == COOLING) {
         gom->tick_cooling_rimasti--;
         return;
     }
     gom->tick_lavorazione_rimasti--;
-    gom->t_GOM += GOM_TSTEP;
+    gom->t_GOM += param.temperatura_incremento_minuto;
     if(gom->t_GOM >= GOM_TMAX){
         gom->stato = COOLING;
         gom->tick_cooling_rimasti = GOM_COOLING_TIME;
         if (gom->tick_cooling_rimasti <= 0) {
             gom->stato = IDLE;
-            gom->t_GOM = 0;
+            gom->t_GOM = param.temperatura_ambiente_iniziale;
         }
     }
 }

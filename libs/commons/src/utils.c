@@ -1,7 +1,3 @@
-#include <stdio.h>      // system headers with angle brackets
-#include <string.h>
-#include <stdlib.h>
-
 #include "utils.h"    
 
 const char* status_pezzo_to_string(piece_status s){

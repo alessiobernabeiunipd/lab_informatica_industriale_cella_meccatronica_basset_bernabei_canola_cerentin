@@ -1,5 +1,4 @@
-
-#include "../include/pezzo.h"
+#include "pezzo.h"
 
 void add_pezzo( pezzo **list_head, pezzo *to_add){
     to_add->next = NULL;

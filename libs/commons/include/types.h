@@ -1,6 +1,10 @@
 #ifndef types_h
 #define types_h
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 //struttura che contiene i tempi come istanti temporali in cui il pezzo compie un'azione determinata
 // uscita - ingresso = lead time; i tre inizio_x vengono impiegati per il tempo macchina effettivo
 typedef struct { 
@@ -94,6 +98,17 @@ typedef struct {
 }tempi_viaggio;
 
 typedef struct {
+    float max_area_pressa;
+    int capacita_buffer_laminazione;
+    int capacita_buffer_pressa;
+    int capacita_buffer_gom;
+    char politica_controllo[32];
+    float temperatura_ambiente_iniziale;
+    float temperatura_incremento_minuto;
+    int durata_simulazione_max;
+} parametri_simulazione;
+
+typedef struct {
     stazione_laminazione  *laminazione;
     stazione_pressa       *pressa;
     stazione_GOM          *gom;
@@ -102,11 +117,13 @@ typedef struct {
     tempi_viaggio tempi;
 
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
-    int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza.
+    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
    
     pezzo *list_head;               //punta al primo elemento della linked list
     int pezzi_completati;            //due contatori per le statistiche
     int pezzi_scartati;
+
+    parametri_simulazione parametri_simulazione;
 } cella_meccatronica;
 
 #endif

@@ -1,5 +1,5 @@
-#include "../../../libs/model/include/pezzo.h"
-#include "../../../external/Unity/src/unity.h"
+#include "pezzo.h"
+#include "unity.h"
 
 void setUp(void) {}
 void tearDown(void) {}
