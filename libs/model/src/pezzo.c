@@ -22,7 +22,7 @@ void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add){
     if(p == NULL) return;
     reset_pezzo(p);
     if(previous == NULL){
-        add_other_pezzo(list_head,p);
+        add_pezzo(&list_head,p);
         return;
     }
     p->next = previous->next;

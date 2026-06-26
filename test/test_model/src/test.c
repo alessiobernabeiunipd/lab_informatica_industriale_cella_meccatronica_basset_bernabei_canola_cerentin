@@ -184,10 +184,104 @@ void test_gom_tick(){
     TEST_ASSERT_EQUAL_INT(8, gom->tick_lavorazione_rimasti);
     TEST_ASSERT_EQUAL_INT(9, gom->tick_cooling_rimasti);
     gom->tick_cooling_rimasti =1;
-    gom_tick(gom, param);
-    
 
+    stazione_GOM *gom2 = init_gom();
+    gom2 = gom;
+    gom_tick(gom, param);
+    TEST_ASSERT_EQUAL_STRING("BUSY", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(8, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_cooling_rimasti);
+    TEST_ASSERT_EQUAL_INT(param.temperatura_ambiente_iniziale, gom->t_GOM);
+    gom2->tick_lavorazione_rimasti = 0;
+    TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(gom->stato));
+}
+
+void test_gom_unload_evaluate_1(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    gom_load(gom, p, 1);
+    gom_tick(gom, param);
+    pezzo *p = gom_unload_and_evaluate(gom, 99);
+    TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_cooling_rimasti);
+    TEST_ASSERT_EQUAL_INT(99, p->ts.uscita);
+    TEST_ASSERT_EQUAL_INT(99, p->lead_time);
+    TEST_ASSERT_EQUAL_STRING("OK", status_pezzo_to_string(OK));
+}
+
+void test_gom_unload_evaluate_2(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    gom_load(gom, p, 1);
+    gom->t_GOM = 26;
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    gom_tick(gom, param);
+    pezzo *p = gom_unload_and_evaluate(gom, 99);
+    TEST_ASSERT_EQUAL_STRING("COOLING", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(10, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_cooling_rimasti);
+}
+
+void test_gom_unload_evaluate_3(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    gom_load(gom, p, 22);
+    gom->t_GOM = 26;
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    gom_tick(gom, param);
+    pezzo *p = gom_unload_and_evaluate(gom, 99);
+    TEST_ASSERT_EQUAL_STRING("COOLING", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(21, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(10, gom->tick_cooling_rimasti);
+    TEST_ASSERT_EQUAL_INT(NULL, p);
+    TEST_ASSERT_EQUAL_STRING(IN_GOM, p->stato);
+}
+
+void test_quality_control_OK(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    gom_load(gom, p, 1);
+    gom_tick(gom, param);
+    pezzo *p = gom_unload_and_evaluate(gom, 99);     //genero un pezzo che so essere OK
     
+    pezzo *list_head = NULL;
+    int scrap = 0;
+    int ok = 0;
+    quality_control(&ok, &scrap, list_head, p);
+    TEST_ASSERT_EQUAL_INT(1, ok);
+}
+
+void test_quality_control_SCRAP(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    p->id_pezzo = 855;                          //inserisco un valore che posso tracciare
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    p->valori_nom.deviazione_max_gom = GOM_DEV_MIN;
+    gom_load(gom, p, 1);
+    gom_tick(gom, param);
+    pezzo *p = gom_unload_and_evaluate(gom, 99);     //genero un pezzo che so essere SCRAP
+    
+    pezzo *list_head = NULL;
+    int scrap = 0;
+    int ok = 0;
+    quality_control(&ok, &scrap, list_head, p);
+    TEST_ASSERT_EQUAL_INT(1, scrap);
+    TEST_ASSERT_EQUAL_INT(855, list_head->id_pezzo);
 }
 
 int main (void)
@@ -199,10 +293,19 @@ int main (void)
     RUN_TEST(test_list);
     RUN_TEST(test_first);
     RUN_TEST(test_add);
+
     RUN_TEST(test_init_agv);
     RUN_TEST(test_get_mold);
     RUN_TEST(test_tick);
     RUN_TEST(test_agv_unload);
 
+    RUN_TEST(test_init_gom);
+    RUN_TEST(test_gom_tick);
+    RUN_TEST(test_gom_unload_evaluate_1);
+    RUN_TEST(test_gom_unload_evaluate_2);
+    RUN_TEST(test_gom_unload_evaluate_3);
+    RUN_TEST(test_quality_control_OK);
+    RUN_TEST(test_quality_control_SCRAP);
+   
     return UNITY_END();
 }
