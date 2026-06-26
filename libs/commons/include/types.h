@@ -122,7 +122,7 @@ typedef struct {
     int pezzi_completati;            //due contatori per le statistiche
     int pezzi_scartati;
 
-    parametri_simulazione parametri_simulazione;
+    parametri_simulazione param;
 } cella_meccatronica;
 
 #endif

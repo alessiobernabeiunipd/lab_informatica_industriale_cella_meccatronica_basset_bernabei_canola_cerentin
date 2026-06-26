@@ -15,7 +15,7 @@ cella_meccatronica *init_cella(){
         free(c); 
         return NULL;
     }
-    c->gom = init_GOM();
+    c->gom = init_gom();
     if (c->gom == NULL) {
         free(c->laminazione); 
         free(c->pressa); 
@@ -31,6 +31,7 @@ cella_meccatronica *init_cella(){
         return NULL;
     }
 
+    c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
     c->tempi.lam_pressa = 0;
     c->tempi.magazzino_lam = 0;
     c->tempi.magazzino_pressa = 0;
@@ -171,7 +172,7 @@ pezzo *laminazione_unload(stazione_laminazione *lam, int tick) {
 
 
 //GOM
-stazione_GOM *init_GOM(){
+stazione_GOM *init_gom(){
     stazione_GOM *gom = malloc(sizeof(stazione_GOM));
     if (gom == NULL) return NULL;
     gom->stato = IDLE;
@@ -179,7 +180,6 @@ stazione_GOM *init_GOM(){
     gom->tick_cooling_rimasti = 0;
     gom->pezzo_in_lavorazione = NULL;
     gom->t_GOM = 0;
-    gom->t_amb = 0;
     return gom;
 }
 
@@ -200,6 +200,12 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
     if (gom->stato == IDLE) return;
     if (gom->stato == COOLING) {
         gom->tick_cooling_rimasti--;
+        if (gom->tick_cooling_rimasti <= 0) {
+            gom->t_GOM = param.temperatura_ambiente_iniziale;
+            if(gom->tick_lavorazione_rimasti <= 0)
+                gom->stato = IDLE;
+            else gom->stato = BUSY;
+        }
         return;
     }
     gom->tick_lavorazione_rimasti--;
@@ -207,15 +213,12 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
     if(gom->t_GOM >= GOM_TMAX){
         gom->stato = COOLING;
         gom->tick_cooling_rimasti = GOM_COOLING_TIME;
-        if (gom->tick_cooling_rimasti <= 0) {
-            gom->stato = IDLE;
-            gom->t_GOM = param.temperatura_ambiente_iniziale;
-        }
     }
 }
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick) {
-    if (gom->stato == BUSY && gom->tick_lavorazione_rimasti <= 0) {
-        gom->stato = IDLE;
+    if ((gom->stato == COOLING || gom->stato == BUSY) && gom->tick_lavorazione_rimasti <= 0) {
+        if(gom->stato == BUSY)
+            gom->stato = IDLE;
         pezzo *p = gom->pezzo_in_lavorazione;
         gom->pezzo_in_lavorazione = NULL;
 
@@ -237,7 +240,7 @@ piece_status gom_evaluate(pezzo *p){
     else return OK;
 }
 
-void quality_control ( int *ok, int *scrap, pezzo *list_head, pezzo *p){
+void quality_control ( int *ok, int *scrap, pezzo **list_head, pezzo *p){
     if(p->stato == OK){
         (*ok)++;
     }

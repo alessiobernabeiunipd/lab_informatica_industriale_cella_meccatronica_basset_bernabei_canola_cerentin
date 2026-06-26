@@ -16,13 +16,13 @@ void add_other_pezzo( pezzo *list_head, pezzo *to_add){
     list_head->next = to_add;
 }
 
-void add_pezzo_next_in_production( pezzo *list_head, pezzo *to_add){           
-    pezzo *previous = last_pezzo_with_status(list_head, TRAVELING);
+void add_pezzo_next_in_production( pezzo **list_head, pezzo *to_add){           
+    pezzo *previous = last_pezzo_with_status(*list_head, TRAVELING);
     pezzo *p = copy_pezzo(to_add);
     if(p == NULL) return;
     reset_pezzo(p);
     if(previous == NULL){
-        add_pezzo(&list_head,p);
+        add_pezzo(list_head,p);
         return;
     }
     p->next = previous->next;

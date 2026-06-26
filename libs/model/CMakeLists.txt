@@ -6,6 +6,6 @@ add_library(model STATIC
     src/cella.c
 )
 
-target_include_directories(model 
-        PUBLIC include  
-)
+target_include_directories(model PUBLIC include)
+
+target_link_libraries( model PUBLIC commons)

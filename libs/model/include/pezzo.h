@@ -15,7 +15,7 @@ void add_other_pezzo( pezzo *list_head, pezzo *to_add);
 
 /*add a passed pezzo struct to make it the next pezzo to start production. Returns null if operation was interrupter for malloc issues. 
 If no piece with WAITING_INPUT status is found the piece is added at the end of the list*/
-void add_pezzo_next_in_production(pezzo *list_head, pezzo *to_add);
+void add_pezzo_next_in_production(pezzo **list_head, pezzo *to_add);
 
 //return ptr to first pezzo in the list with a specific status. Returns NULL is no piece has the requested status
 pezzo *first_pezzo_with_status(pezzo *list_head, piece_status status);

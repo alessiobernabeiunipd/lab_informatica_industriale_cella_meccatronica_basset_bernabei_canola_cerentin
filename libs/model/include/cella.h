@@ -66,11 +66,32 @@ void laminazione_tick(stazione_laminazione *lam);
 
 
 //initialize gom
-stazione_GOM *init_GOM();
+stazione_GOM *init_gom();
+
+// Carica un pezzo nella stazione e avvia la scansione del GOM.
+// Imposta i tick rimanenti dal tempo nominale del pezzo e aggiorna lo stato a IN_GOM.
 void gom_load(stazione_GOM *gom, pezzo *p, int tick );
+
+// Decrementa i tick rimanenti. Da chiamare ogni ciclo, è no-op se la stazione è IDLE.
+// Se GOM è in COOLING, diminuisce i tick di cooling
+// Se GOM è surriscaldato, lo mette in COOLING
+// Alla fine del processo di cooling il GOM riprende un eventuale operazione interrotta.
 void gom_tick(stazione_GOM *gom, parametri_simulazione param);
+
+// Ritorna true se la stazione è libera (IDLE), false se occupata (BUSY).
+int gom_is_free(stazione_GOM *gom);
+
+// Ritorna il pezzo se la laminazione è terminata e porta la stazione in IDLE, altrimenti NULL.
+// Da chiamare prima di laminazione_tick().
+// Chiama gom_evaluate al suo interno
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick);
+
+// Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
+// in base alle specifiche da catalogo
 piece_status gom_evaluate(pezzo *p);
 
-void quality_control ( int *ok, int *scrap, pezzo *list_head, pezzo *p);
+// Valuta lo stato di un pezzo:
+// OK: aumenta contatore
+// SCRAP: aumenta contatore e inserisce nella lista un nuovo pezzo
+void quality_control ( int *ok, int *scrap, pezzo **list_head, pezzo *p);
 #endif
