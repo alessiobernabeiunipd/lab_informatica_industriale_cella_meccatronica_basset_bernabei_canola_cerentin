@@ -1,4 +1,4 @@
-#include "pezzo.h"
+#include "cella.h"
 #include "unity.h"
 
 void setUp(void) {}
@@ -98,6 +98,98 @@ void test_add(){
     TEST_ASSERT_EQUAL_STRING("CREATED", status_pezzo_to_string(c->next->stato));
 }
 
+void test_init_agv(){       //testa le funzioni di inizializzazione dell'AGV
+    AGV *agv = init_agv();
+    TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(agv->stato));
+    TEST_ASSERT_EQUAL_INT(0, agv->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(NULL, agv->pezzo_in_lavorazione);
+    int i = agv_is_free(agv);
+    TEST_ASSERT_EQUAL_INT(1, i);
+    agv->stato = BUSY;
+    int j = agv_is_free(agv);
+    TEST_ASSERT_EQUAL_INT(0, j);
+}
+
+void test_get_mold(){
+    AGV *agv = init_agv();
+    pezzo *p = new_pezzo;
+    agv_get_mold(agv, p, 10, 9);
+    TEST_ASSERT_EQUAL_STRING("BUSY", status_station_to_string(agv->stato));
+    TEST_ASSERT_EQUAL_INT(p, agv->pezzo_in_lavorazione);
+    TEST_ASSERT_EQUAL_INT(20, agv->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(9, p->ts.ingresso);
+    TEST_ASSERT_EQUAL_STRING("TRAVELING", status_pezzo_to_string(p));
+    agv_get_mold(agv, p, 1000, 1000);
+    TEST_ASSERT_EQUAL_INT(p, agv->pezzo_in_lavorazione);
+    TEST_ASSERT_EQUAL_INT(20, agv->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(9, p->ts.ingresso);
+
+}
+
+void test_tick(){
+    AGV *agv = init_agv();
+    TEST_ASSERT_EQUAL_INT(0, agv->tick_lavorazione_rimasti);
+    pezzo *p = new_pezzo;
+    agv_get_mold(agv, p, 10, 9);
+    agv_tick(agv);
+    TEST_ASSERT_EQUAL_INT(19, agv->tick_lavorazione_rimasti);
+}
+
+void test_agv_unload(){
+    AGV *agv = init_agv();
+    pezzo *p = new_pezzo;
+    agv_get_mold(agv, p, 10, 9);
+    pezzo *m = agv_unload(agv);
+    TEST_ASSERT_EQUAL_INT(NULL, m);
+    agv->tick_lavorazione_rimasti = 0;
+    pezzo *r = agv_unload(agv);
+    TEST_ASSERT_EQUAL_INT(p, r);
+    TEST_ASSERT_EQUAL_INT(NULL, agv->pezzo_in_lavorazione);
+    TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(agv));
+}
+
+void test_init_gom(){       //testa le funzioni di inizializzazione dell'AGV
+    stazione_GOM *gom = init_gom();
+    TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_cooling_rimasti);
+    TEST_ASSERT_EQUAL_INT(NULL, gom->pezzo_in_lavorazione);
+    int i = gom_is_free(gom);
+    TEST_ASSERT_EQUAL_INT(1, i);
+    gom->stato = BUSY;
+    int j = gom_is_free(gom);
+    TEST_ASSERT_EQUAL_INT(0, j);
+}
+
+void test_gom_tick(){
+    stazione_GOM *gom = init_gom();
+    pezzo *p = new_pezzo;
+    gom_load(gom, p, 10);
+    parametri_simulazione param;
+    param.temperatura_ambiente_iniziale = 20;
+    param.temperatura_incremento_minuto = 2;
+    gom_tick(gom, param);
+    TEST_ASSERT_EQUAL_STRING("BUSY", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(9, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(0, gom->tick_cooling_rimasti);
+    TEST_ASSERT_EQUAL_INT(p, gom->pezzo_in_lavorazione);
+    TEST_ASSERT_EQUAL_INT(22, gom->t_GOM);
+    gom->t_GOM = 26;
+    gom_tick(gom, param);
+    TEST_ASSERT_EQUAL_STRING("COOLING", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(8, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(10, gom->tick_cooling_rimasti);
+    gom_tick(gom, param);
+    TEST_ASSERT_EQUAL_STRING("COOLING", status_station_to_string(gom->stato));
+    TEST_ASSERT_EQUAL_INT(8, gom->tick_lavorazione_rimasti);
+    TEST_ASSERT_EQUAL_INT(9, gom->tick_cooling_rimasti);
+    gom->tick_cooling_rimasti =1;
+    gom_tick(gom, param);
+    
+
+    
+}
+
 int main (void)
 {
     UNITY_BEGIN();
@@ -107,6 +199,10 @@ int main (void)
     RUN_TEST(test_list);
     RUN_TEST(test_first);
     RUN_TEST(test_add);
+    RUN_TEST(test_init_agv);
+    RUN_TEST(test_get_mold);
+    RUN_TEST(test_tick);
+    RUN_TEST(test_agv_unload);
 
     return UNITY_END();
 }

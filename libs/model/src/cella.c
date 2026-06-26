@@ -63,6 +63,7 @@ void agv_get_mold(AGV *agv, pezzo *p, int tick_viaggio, int tick) {
     agv->stato = BUSY;
     agv->pezzo_in_lavorazione = p;
     agv->tick_lavorazione_rimasti = 2*tick_viaggio;
+    p->stato = TRAVELING;
 
     p->ts.ingresso=tick;
 }
@@ -78,6 +79,7 @@ pezzo *agv_unload(AGV *agv) {
         agv->stato = IDLE;
         pezzo *p = agv->pezzo_in_lavorazione;
         agv->pezzo_in_lavorazione = NULL;
+        p->stato = WAITING_INPUT;
         return p;
     }
     return NULL;

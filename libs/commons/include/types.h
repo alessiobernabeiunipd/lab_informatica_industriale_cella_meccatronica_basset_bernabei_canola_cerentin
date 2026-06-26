@@ -88,7 +88,6 @@ typedef struct {
     int tick_cooling_rimasti;
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
     float t_GOM;
-    float t_amb;
 }stazione_GOM;
 
 typedef struct {
