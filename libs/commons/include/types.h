@@ -68,18 +68,21 @@ typedef struct {
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }AGV;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }stazione_laminazione;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se cooling metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }stazione_pressa;
 
 typedef struct { 
@@ -87,6 +90,7 @@ typedef struct {
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     int tick_cooling_rimasti;
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
+    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
     float t_GOM;
 }stazione_GOM;
 
@@ -124,5 +128,19 @@ typedef struct {
 
     parametri_simulazione param;
 } cella_meccatronica;
+
+typedef struct {
+int pezzi_completati;
+int pezzi_scartati;
+int pezzi_totali;
+float tasso_scato; // pezzi_scartati / pezzi_totali
+float lead_time_medio;
+float tempo_laminazione_medio; //media tempo laminazione effettivo
+float tempo_pressa_medio;
+float tempo_gom_medio;
+float deviazione_gom_medio;
+int pezzi_in_ritardo; // pezzi che hanno superato la deadline
+int tick_totali; // durata effettiva sim
+} metriche_t;
 
 #endif

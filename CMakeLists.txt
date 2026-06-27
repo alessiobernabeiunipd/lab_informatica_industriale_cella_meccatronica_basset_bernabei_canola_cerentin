@@ -17,6 +17,7 @@ set(TARGET_GROUP test CACHE STRING "Group to build") # posso alternare tra run d
 add_subdirectory(libs/commons)
 add_subdirectory(libs/model)
 add_subdirectory(libs/parsing)
+add_subdirectory(libs/io)
 
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)
