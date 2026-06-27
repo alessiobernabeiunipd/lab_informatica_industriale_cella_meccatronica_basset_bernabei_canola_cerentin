@@ -7,5 +7,5 @@ target_link_libraries( model_lib_test
     PRIVATE  
     model 
     commons
-    Unity
+    unity
 ) 
