@@ -233,11 +233,13 @@ pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick) {
     return NULL;
 }
 
-piece_status gom_evaluate(pezzo *p){
+// Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
+// in base alle specifiche da catalogo
+static piece_status gom_evaluate(pezzo *p){                                   
     p->deviazione_gom = random_float(GOM_DEV_MIN, GOM_DEV_MAX);
     if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom)
         return SCRAP;
-    else return OK;
+    else return OK;                                                                   
 }
 
 void quality_control ( int *ok, int *scrap, pezzo **list_head, pezzo *p){
