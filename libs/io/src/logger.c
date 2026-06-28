@@ -71,7 +71,7 @@ void log_error_f(int tick, const char *format, ...){
 // chiude il file e azzera il puntatore
 void logger_close(void){
     if (log_file == NULL){
-        return;
+        return; // serve a evitare crash se viene chiamata più volte senza init
     }
     fclose(log_file);
     log_file = NULL;
