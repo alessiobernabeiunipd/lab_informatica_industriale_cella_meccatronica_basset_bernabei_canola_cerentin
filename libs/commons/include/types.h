@@ -141,6 +141,8 @@ float tempo_gom_medio;
 float deviazione_gom_medio;
 int pezzi_in_ritardo; // pezzi che hanno superato la deadline
 int tick_totali; // durata effettiva sim
+int blocchi_buffer_pieno;
+int errori_simulazione;
 } metriche_t;
 
 #endif
