@@ -12,15 +12,26 @@ void print_list(Pezzo *head){
     printf("\n");
 }
 
+void delete_list(Pezzo *head){
+    Pezzo *current = head;
+    Pezzo *next;
+
+    while(current != NULL){
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
 void main(){
     Pezzo *head = NULL;
 
-    Pezzo **buffer_a = initialize(4);
-    Pezzo **buffer_b = initialize(7);
-    Pezzo **buffer_c = initialize(2);
+    buffer *buffer_a = initialize(6);
+    buffer *buffer_b = initialize(7);
+    buffer *buffer_c = initialize(11);
 
     int i = 0;
-    while(!is_full(buffer_c, 2)){
+    while(!is_full(buffer_c)){
         Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
 
         if(nuovo_pezzo == NULL){
@@ -33,12 +44,12 @@ void main(){
         head = nuovo_pezzo;
 
         i++;
-        if(!is_full(buffer_a, 4))
-            new_item(nuovo_pezzo, buffer_a, 4);
-        else if(!is_full(buffer_b, 7))
-            new_item(nuovo_pezzo, buffer_b, 7);
-        else if(!is_full(buffer_c, 2))
-            new_item(nuovo_pezzo, buffer_c, 2);
+        if(!is_full(buffer_a))
+            new_item(nuovo_pezzo, buffer_a);
+        else if(!is_full(buffer_b))
+            new_item(nuovo_pezzo, buffer_b);
+        else if(!is_full(buffer_c))
+            new_item(nuovo_pezzo, buffer_c);
     }
 
 
@@ -46,19 +57,20 @@ void main(){
         Pezzo *nuovo_pezzo;
 
         if(!is_empty(buffer_c))
-            nuovo_pezzo = take_item(buffer_c, 2);
+            nuovo_pezzo = take_item(buffer_c);
         else if(!is_empty(buffer_b))
-            nuovo_pezzo = take_item(buffer_b, 7);
+            nuovo_pezzo = take_item(buffer_b);
         else if(!is_empty(buffer_a))
-            nuovo_pezzo = take_item(buffer_a, 4);
+            nuovo_pezzo = take_item(buffer_a);
 
         printf("Pezzo ID: %d\n", nuovo_pezzo->id_pezzo);
     }
 
     printf("\nLa lista di partenza era:\n");
     print_list(head);
+    delete_list(head);
 
-    terminate(buffer_a, 4);
-    terminate(buffer_b, 7);
-    terminate(buffer_c, 2);
+    terminate(buffer_a);
+    terminate(buffer_b);
+    terminate(buffer_c);
 }

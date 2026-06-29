@@ -4,64 +4,68 @@
 
 #include "buffer.h"
 
-Pezzo **initialize(int buffer_size){
-    Pezzo **buffer = malloc(buffer_size * sizeof(Pezzo));
+buffer *initialize(int buffer_size){
+    buffer *buf = malloc(sizeof(buffer));
+    buf->array = malloc(buffer_size * sizeof(Pezzo));
+    buf->array_size = buffer_size;
+
     for(int i = 0; i < buffer_size; i++)
-        buffer[i] = NULL;
-    return buffer;
+        buf->array[i] = NULL;
+    return buf;
 }
 
-void new_item(Pezzo *head, Pezzo **buffer, int buffer_size){
-    if(is_full(buffer, buffer_size)){
+void new_item(Pezzo *head, buffer *buf){
+    if(is_full(buf)){
         printf("Errore: questo buffer è pieno\n");
         return;
     }
 
     else{
-        for(int i = 0; i < buffer_size; i++){
-            if(buffer[i] == NULL){
-                buffer[i] = head;
+        for(int i = 0; i < buf->array_size; i++){
+            if(buf->array[i] == NULL){
+                buf->array[i] = head;
                 break;
             }
         }
     }
 }
 
-Pezzo *take_item(Pezzo **buffer, int buffer_size){
-    if(is_empty(buffer)){
+Pezzo *take_item(buffer *buf){
+    if(is_empty(buf)){
         printf("Errore: questo buffer è vuoto\n");
         return NULL;
     }
 
     else{
-        Pezzo *in_uscita = buffer[0];
-        for(int i = 0; i < buffer_size-1; i++)
-            buffer[i] = buffer[i+1];
+        Pezzo *in_uscita = buf->array[0];
+        for(int i = 0; i < buf->array_size-1; i++)
+            buf->array[i] = buf->array[i+1];
 
-        buffer[buffer_size-1] = NULL;
+        buf->array[buf->array_size-1] = NULL;
         return in_uscita;
     }
 }
 
-bool is_full(Pezzo **buffer, int buffer_size){
-    if(buffer[buffer_size-1] == NULL)
+bool is_full(buffer *buf){
+    if(buf->array[buf->array_size-1] == NULL)
         return false;
 
     else
         return true;
 }
 
-bool is_empty(Pezzo **buffer){
-    if(buffer[0] == NULL)
+bool is_empty(buffer *buf){
+    if(buf->array[0] == NULL)
         return true;
 
     else
         return false;
 }
 
-void terminate(Pezzo **buffer, int buffer_size){
-    for(int i = 0; i < buffer_size; i++){
-        free(buffer[i]);
+void terminate(buffer *buf){
+    for(int i = 0; i < buf->array_size; i++){
+        free(buf->array[i]);
     }
-    free(buffer);
+    free(buf->array);
+    free(buf);
 }
