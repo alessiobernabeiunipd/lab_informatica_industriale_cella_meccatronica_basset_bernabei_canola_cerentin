@@ -23,4 +23,8 @@ void record_error (void);
 void metrics_compute_lead_time_medio(void);
 // calcola le medie dei tempi macchina per laminazione, pressa e GOM; va chiamata a fine sim
 void metrics_compute_tempi_medi_stazione(void);
+// calcola la frazione di pezzi scartati sul totale letto dal CSV
+void metrics_compute_tasso_scarto(void);
+// calcola la media della deviazione gom sui pezzi completati
+void metrics_compute_deviazione_gom_media(void);
 #endif 

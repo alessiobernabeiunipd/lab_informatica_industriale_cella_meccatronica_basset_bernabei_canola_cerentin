@@ -133,7 +133,7 @@ typedef struct {
 int pezzi_completati;
 int pezzi_scartati;
 int pezzi_totali;
-float tasso_scato; // pezzi_scartati / pezzi_totali
+float tasso_scarto; // pezzi_scartati / pezzi_totali
 float lead_time_medio;
 float tempo_laminazione_medio; //media tempo laminazione effettivo
 float tempo_pressa_medio;

@@ -78,6 +78,7 @@ void record_piece_scrap(const pezzo *p)
     acc->somma_t_laminazione += p->tempo_laminazione_effettivo;
     acc->somma_t_pressa += p->tempo_pressa_effettivo;
     acc->somma_t_gom += p->tempo_gom_effettivo;
+    // la deviazione del gom va solo sui completati, come il lead time
 }
 
 void record_piece_late(const pezzo *p)
@@ -102,4 +103,12 @@ void metrics_compute_tempi_medi_stazione (void) {
     output.tempo_laminazione_medio = (float)acc->somma_t_laminazione/(output.pezzi_completati+output.pezzi_scartati);
     output.tempo_gom_medio = (float)acc->somma_t_gom/(output.pezzi_completati+output.pezzi_scartati);
     output.tempo_pressa_medio = (float)acc->somma_t_pressa/(output.pezzi_completati+output.pezzi_scartati);
+}
+void metrics_compute_tasso_scarto(void){
+    if(output.pezzi_totali == 0) return;
+    output.tasso_scarto = (float)output.pezzi_scartati/output.pezzi_totali;
+}
+void metrics_compute_deviazione_gom_media(void){
+    if(output.pezzi_completati == 0) return;
+    output.deviazione_gom_medio = acc->somma_deviazione_gom/output.pezzi_completati;
 }
