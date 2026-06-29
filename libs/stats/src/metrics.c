@@ -75,7 +75,6 @@ void record_piece_done(const pezzo *p){
 void record_piece_scrap(const pezzo *p)
 {
     output.pezzi_scartati++;
-    acc->somma_lead_time += p->lead_time;
     acc->somma_t_laminazione += p->tempo_laminazione_effettivo;
     acc->somma_t_pressa += p->tempo_pressa_effettivo;
     acc->somma_t_gom += p->tempo_gom_effettivo;
@@ -97,4 +96,10 @@ void metrics_compute_lead_time_medio(void){
     if(output.pezzi_completati == 0) return; // no divisioni per 0
     output.lead_time_medio = (float)acc->somma_lead_time/output.pezzi_completati;
     // la divisione in C tronca a intero => mi serve uno dei due operandi in float prima delle divisone
+}
+void metrics_compute_tempi_medi_stazione (void) {
+    if (output.pezzi_completati + output.pezzi_scartati == 0) return;
+    output.tempo_laminazione_medio = (float)acc->somma_t_laminazione/(output.pezzi_completati+output.pezzi_scartati);
+    output.tempo_gom_medio = (float)acc->somma_t_gom/(output.pezzi_completati+output.pezzi_scartati);
+    output.tempo_pressa_medio = (float)acc->somma_t_pressa/(output.pezzi_completati+output.pezzi_scartati);
 }

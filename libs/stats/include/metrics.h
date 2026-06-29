@@ -17,4 +17,10 @@ void record_piece_late (const pezzo *p);
 void record_block (void);
 // incrementa il contatore degli errori di simulazione 
 void record_error (void);
+
+//calcola la media del lead time sui pezzi completati scrivendo risultato in output.lead_time_medio
+// va chiamata a fine sim
+void metrics_compute_lead_time_medio(void);
+// calcola le medie dei tempi macchina per laminazione, pressa e GOM; va chiamata a fine sim
+void metrics_compute_tempi_medi_stazione(void);
 #endif 
