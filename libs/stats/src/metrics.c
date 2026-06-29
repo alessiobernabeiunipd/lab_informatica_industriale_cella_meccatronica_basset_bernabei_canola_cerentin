@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 typedef struct {
-    int somma_lead_time;
+    long somma_lead_time; // evito overflow
     int somma_t_laminazione;
     int somma_t_pressa;
     int somma_t_gom;
@@ -60,7 +60,7 @@ void record_piece_done(const pezzo *p){
     acc->somma_deviazione_gom += p->deviazione_gom;
 
     if (lead_times_count >= lead_times_capacity) {
-        int nuova_capacita = (lead_times_capacity == 0) ? 1 : lead_times_capacity * 2;
+        int nuova_capacita = (lead_times_capacity == 0) ? 1 : lead_times_capacity * 2; // n.c parte da 1 quando lead_capacity è 0
         int *tmp = realloc(lead_times_arr, sizeof(int) * nuova_capacita);
         if (tmp == NULL) {
             fprintf(stderr, "Errore nell'allocazione della memoria per lead_times_arr\n");
@@ -92,4 +92,9 @@ void record_block(void)
 }
 void record_error(void){
     output.errori_simulazione++;
+}
+void metrics_compute_lead_time_medio(void){
+    if(output.pezzi_completati == 0) return; // no divisioni per 0
+    output.lead_time_medio = (float)acc->somma_lead_time/output.pezzi_completati;
+    // la divisione in C tronca a intero => mi serve uno dei due operandi in float prima delle divisone
 }
