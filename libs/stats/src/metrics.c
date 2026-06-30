@@ -49,6 +49,7 @@ void metrics_destroy(void){
     lead_times_arr = NULL;
     lead_times_capacity = 0;
     lead_times_count = 0;
+    memset(&output, 0, sizeof(output)); // reset output
 }
 
 void record_piece_done(const pezzo *p){

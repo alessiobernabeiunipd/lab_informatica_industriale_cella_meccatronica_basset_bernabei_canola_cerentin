@@ -16,7 +16,7 @@
 //Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
 //Permette di creare più buffer con dimensioni diverse.
 typedef struct buffer{
-    Pezzo **array;
+    pezzo **array;
     int array_size;
 } buffer;
 
@@ -25,11 +25,11 @@ buffer *initialize(int buffer_size);
 
 /*Aggiunge un nuovo elemento al buffer, per precauzione esegue una funzione
  *di controllo is_full*/
-void new_item(Pezzo *head, buffer *buf);
+void new_item(pezzo *head, buffer *buf);
 
 /*Rimuove un elemento dal buffer, per precauzione esegue una funzione
  *di controllo is_empty*/
-Pezzo *take_item(buffer *buf);
+pezzo *take_item(buffer *buf);
 
 /*Verifica se il buffer ha ancora spazio a disposizione*/
 bool is_full(buffer *buf);

@@ -6,7 +6,7 @@
 
 buffer *initialize(int buffer_size){
     buffer *buf = malloc(sizeof(buffer));
-    buf->array = malloc(buffer_size * sizeof(Pezzo));
+    buf->array = malloc(buffer_size * sizeof(pezzo));
     buf->array_size = buffer_size;
 
     for(int i = 0; i < buffer_size; i++)
@@ -14,7 +14,7 @@ buffer *initialize(int buffer_size){
     return buf;
 }
 
-void new_item(Pezzo *head, buffer *buf){
+void new_item(pezzo *head, buffer *buf){
     if(is_full(buf)){
         printf("Errore: questo buffer è pieno\n");
         return;
@@ -30,14 +30,14 @@ void new_item(Pezzo *head, buffer *buf){
     }
 }
 
-Pezzo *take_item(buffer *buf){
+pezzo *take_item(buffer *buf){
     if(is_empty(buf)){
         printf("Errore: questo buffer è vuoto\n");
         return NULL;
     }
 
     else{
-        Pezzo *in_uscita = buf->array[0];
+        pezzo *in_uscita = buf->array[0];
         for(int i = 0; i < buf->array_size-1; i++)
             buf->array[i] = buf->array[i+1];
 

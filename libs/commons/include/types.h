@@ -68,21 +68,18 @@ typedef struct {
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }AGV;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }stazione_laminazione;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se cooling metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
 }stazione_pressa;
 
 typedef struct { 
@@ -90,7 +87,6 @@ typedef struct {
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
     int tick_cooling_rimasti;
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    int tick_busy; // tick cumulativi in BUSY, per report; da iniz. a 0
     float t_GOM;
 }stazione_GOM;
 
@@ -112,27 +108,10 @@ typedef struct {
 } parametri_simulazione;
 
 typedef struct {
-    stazione_laminazione  *laminazione;
-    stazione_pressa       *pressa;
-    stazione_GOM          *gom;
-    AGV                   *agv;
-
-    tempi_viaggio tempi;
-
-    int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
-    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
-   
-    pezzo *list_head;               //punta al primo elemento della linked list
-    int pezzi_completati;            //due contatori per le statistiche
-    int pezzi_scartati;
-
-    parametri_simulazione param;
-} cella_meccatronica;
-
-typedef struct {
 int pezzi_completati;
 int pezzi_scartati;
 int pezzi_totali;
+int pezzi_non_finiti;
 float tasso_scarto; // pezzi_scartati / pezzi_totali
 float lead_time_medio;
 float tempo_laminazione_medio; //media tempo laminazione effettivo
@@ -144,5 +123,26 @@ int tick_totali; // durata effettiva sim
 int blocchi_buffer_pieno;
 int errori_simulazione;
 } metriche_t;
+
+
+typedef struct {
+    stazione_laminazione  *laminazione;
+    stazione_pressa       *pressa;
+    stazione_GOM          *gom;
+    AGV                   *agv;
+
+    tempi_viaggio tempi;
+
+    int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
+    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
+   
+    pezzo *list_head;               //punta al primo elemento della linked list
+    metriche_t metrics;
+    int pezzi_completati; // da togleire
+    int pezzi_scartati; // da togliere
+
+    parametri_simulazione param;
+} cella_meccatronica;
+
 
 #endif
