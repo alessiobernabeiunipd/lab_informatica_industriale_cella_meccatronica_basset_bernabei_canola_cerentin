@@ -9,6 +9,12 @@ typedef struct {
     int somma_t_pressa;
     int somma_t_gom;
     float somma_deviazione_gom;
+    int rilavorazioni;
+    int pezzi_in_ritardo;
+    int pezzi_scartati;
+    int pezzi_completati;
+    int blocchi_buffer_pieno;
+    int errori_simulazione;
 } accumulatori_t;
 
 static accumulatori_t *acc = NULL;
@@ -18,6 +24,16 @@ static int lead_times_count = 0; // serve a capire quanti elementi sono occupati
 static metriche_t output;
 
 const metriche_t *metrics_get(void){
+    if (acc == NULL){
+        fprintf(stderr, "Errore:metrics_get prima di init\n");
+        return &output; // ritorna puntatore con tutti 0
+    }
+    output.pezzi_completati     = acc->pezzi_completati;
+    output.pezzi_scartati       = acc->pezzi_scartati;
+    output.pezzi_in_ritardo     = acc->pezzi_in_ritardo;
+    output.rilavorazioni        = acc->rilavorazioni;
+    output.blocchi_buffer_pieno = acc->blocchi_buffer_pieno;
+    output.errori_simulazione   = acc->errori_simulazione;
     return &output;
 }
 
@@ -53,7 +69,10 @@ void metrics_destroy(void){
 }
 
 void record_piece_done(const pezzo *p){
-    output.pezzi_completati++;
+    acc->pezzi_completati++;
+    if (p->ts.uscita > p->deadline_ticks) {
+        acc->pezzi_in_ritardo++;
+    }
     acc->somma_lead_time += p->lead_time;
     acc->somma_t_laminazione += p->tempo_laminazione_effettivo;
     acc->somma_t_pressa += p->tempo_pressa_effettivo;
@@ -75,41 +94,38 @@ void record_piece_done(const pezzo *p){
 
 void record_piece_scrap(const pezzo *p)
 {
-    output.pezzi_scartati++;
+    acc->pezzi_scartati++;
+    acc->rilavorazioni++;
     acc->somma_t_laminazione += p->tempo_laminazione_effettivo;
     acc->somma_t_pressa += p->tempo_pressa_effettivo;
     acc->somma_t_gom += p->tempo_gom_effettivo;
     // la deviazione del gom va solo sui completati, come il lead time
 }
 
-void record_piece_late(const pezzo *p)
-{
-    output.pezzi_in_ritardo++;
-}
 
 void record_block(void)
 {
-    output.blocchi_buffer_pieno++;
+    acc->blocchi_buffer_pieno++;
 }
 void record_error(void){
-    output.errori_simulazione++;
+    acc->errori_simulazione++;
 }
 void metrics_compute_lead_time_medio(void){
-    if(output.pezzi_completati == 0) return; // no divisioni per 0
-    output.lead_time_medio = (float)acc->somma_lead_time/output.pezzi_completati;
-    // la divisione in C tronca a intero => mi serve uno dei due operandi in float prima delle divisone
+    if(acc->pezzi_completati == 0) return;
+    output.lead_time_medio = (float)acc->somma_lead_time / acc->pezzi_completati;
 }
-void metrics_compute_tempi_medi_stazione (void) {
-    if (output.pezzi_completati + output.pezzi_scartati == 0) return;
-    output.tempo_laminazione_medio = (float)acc->somma_t_laminazione/(output.pezzi_completati+output.pezzi_scartati);
-    output.tempo_gom_medio = (float)acc->somma_t_gom/(output.pezzi_completati+output.pezzi_scartati);
-    output.tempo_pressa_medio = (float)acc->somma_t_pressa/(output.pezzi_completati+output.pezzi_scartati);
+void metrics_compute_tempi_medi_stazione(void){
+    int tot = acc->pezzi_completati + acc->pezzi_scartati;
+    if (tot == 0) return;
+    output.tempo_laminazione_medio = (float)acc->somma_t_laminazione / tot;
+    output.tempo_gom_medio         = (float)acc->somma_t_gom          / tot;
+    output.tempo_pressa_medio      = (float)acc->somma_t_pressa        / tot;
 }
 void metrics_compute_tasso_scarto(void){
     if(output.pezzi_totali == 0) return;
-    output.tasso_scarto = (float)output.pezzi_scartati/output.pezzi_totali;
+    output.tasso_scarto = (float)acc->pezzi_scartati / output.pezzi_totali;
 }
 void metrics_compute_deviazione_gom_media(void){
-    if(output.pezzi_completati == 0) return;
-    output.deviazione_gom_medio = acc->somma_deviazione_gom/output.pezzi_completati;
+    if(acc->pezzi_completati == 0) return;
+    output.deviazione_gom_medio = acc->somma_deviazione_gom / acc->pezzi_completati;
 }

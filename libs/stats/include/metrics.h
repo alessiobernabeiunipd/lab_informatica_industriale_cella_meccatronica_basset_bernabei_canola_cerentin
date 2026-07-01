@@ -11,8 +11,6 @@ const metriche_t *metrics_get(void);
 void record_piece_done(const pezzo *p);
 // aggiorna i contatori quando un pezzo viene scartato
 void record_piece_scrap (const pezzo *p);
-// aggiorna i contatori quando un pezzo viene completato in ritardo
-void record_piece_late (const pezzo *p);
 //incrementa il contatore dei blocchi causati da buffer pieno
 void record_block (void);
 // incrementa il contatore degli errori di simulazione 

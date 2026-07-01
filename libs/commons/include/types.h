@@ -112,13 +112,14 @@ int pezzi_completati;
 int pezzi_scartati;
 int pezzi_totali;
 int pezzi_non_finiti;
+int pezzi_in_ritardo; // pezzi che hanno superato la deadline
+int rilavorazioni; // pezzi che hanno subito rilavorazioni
 float tasso_scarto; // pezzi_scartati / pezzi_totali
 float lead_time_medio;
 float tempo_laminazione_medio; //media tempo laminazione effettivo
 float tempo_pressa_medio;
 float tempo_gom_medio;
 float deviazione_gom_medio;
-int pezzi_in_ritardo; // pezzi che hanno superato la deadline
 int tick_totali; // durata effettiva sim
 int blocchi_buffer_pieno;
 int errori_simulazione;

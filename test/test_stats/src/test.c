@@ -79,19 +79,6 @@ void test_record_piece_scrap_incrementa_scartati(void)
     TEST_ASSERT_EQUAL_INT(0, m->pezzi_in_ritardo);
 }
 
-// test per incremento pezzi in ritardo: contatore cresce e gli altri restano a zero
-void test_record_piece_late_incrementa_in_ritardo(void)
-{
-    pezzo p = make_pezzo(20, 5, 3, 2, 0.1f);
-    record_piece_late(&p);
-    record_piece_late(&p);
-    record_piece_late(&p);
-    const metriche_t *m = metrics_get();
-    TEST_ASSERT_EQUAL_INT(3, m->pezzi_in_ritardo);
-    TEST_ASSERT_EQUAL_INT(0, m->pezzi_completati);
-    TEST_ASSERT_EQUAL_INT(0, m->pezzi_scartati);
-}
-
 // test per incremento blocchi buffer pieno: contatore cresce e errori resta a zero
 void test_record_block_incrementa_blocchi(void)
 {
@@ -217,7 +204,6 @@ int main(void) {
     RUN_TEST(test_get_dopo_destroy_ritorna_zero);
     RUN_TEST(test_record_piece_done_incrementa_completati);
     RUN_TEST(test_record_piece_scrap_incrementa_scartati);
-    RUN_TEST(test_record_piece_late_incrementa_in_ritardo);
     RUN_TEST(test_record_block_incrementa_blocchi);
     RUN_TEST(test_record_error_incrementa_errori);
     RUN_TEST(test_lead_time_medio_di_due_pezzi);
