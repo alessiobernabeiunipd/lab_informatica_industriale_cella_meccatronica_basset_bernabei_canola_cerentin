@@ -1,0 +1,7 @@
+id,tipo,quantita,priorita,tempo_completamento_massimo
+1,B,3,10,360
+2,A,4,5,480
+3,C,2,15,300
+4,B,2,8,420
+5,C,3,1,600
+

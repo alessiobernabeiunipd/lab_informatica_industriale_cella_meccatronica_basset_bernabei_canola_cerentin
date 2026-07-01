@@ -1,0 +1,15 @@
+#Cmake directories
+build/
+Testing/
+
+#files che posso finire in root
+Makefile 
+CMakeFiles 
+CMakeCache.txt 
+cmake_install.cmake 
+commons_lib_test 
+CTestTestfile.cmake 
+DartConfig.tcl
+
+#tests
+test/test_common_structs/commons_lib_test

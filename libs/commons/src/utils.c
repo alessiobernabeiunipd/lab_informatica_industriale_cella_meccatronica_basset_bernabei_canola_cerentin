@@ -1,0 +1,32 @@
+#include "utils.h"    
+
+const char* status_pezzo_to_string(piece_status s){
+    switch (s){
+    case CREATED:           return "CREATED";
+    case TRAVELING:         return "TRAVELING";
+    case WAITING_INPUT:     return "WAITING_INPUT";
+    case IN_LAMINATION:     return "IN_LAMINATION";
+    case WAITING_PRESS:     return "WAITING_PRESS";
+    case IN_PRESS:          return "IN_PRESS";
+    case ON_CONVEYOR:       return "ON_CONVEYOR";
+    case IN_GOM:            return "IN_GOM";
+    case OK:                return "OK";
+    case SCRAP:             return "SCRAP";
+    case DONE:              return "DONE";
+    default :               return "ERROR";
+    }
+}
+
+const char* status_station_to_string(station_status s){
+    switch (s){
+        case IDLE:          return "IDLE";
+        case BUSY:          return "BUSY";
+        case COOLING:       return "COOLING";
+        default:            return "ERROR";
+    }
+}
+
+float random_float(float min, float max) {
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
+ 
