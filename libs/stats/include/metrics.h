@@ -25,4 +25,6 @@ void metrics_compute_tempi_medi_stazione(void);
 void metrics_compute_tasso_scarto(void);
 // calcola la media della deviazione gom sui pezzi completati
 void metrics_compute_deviazione_gom_media(void);
+//raggruppa le ultime 4 assieme
+void metrics_finalize(void);
 #endif 

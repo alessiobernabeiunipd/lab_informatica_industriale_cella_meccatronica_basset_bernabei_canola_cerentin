@@ -129,3 +129,15 @@ void metrics_compute_deviazione_gom_media(void){
     if(acc->pezzi_completati == 0) return;
     output.deviazione_gom_medio = acc->somma_deviazione_gom / acc->pezzi_completati;
 }
+// aggiugno metrics_finalize per chiamare le ultime 4 assieme in modo da popolare l'intera
+// struttura metriche_t prima di chiamare metrics_get()
+void metrics_finalize(void){
+    if (acc == NULL) {
+        fprintf(stderr, "Errore: metrics_finalize chiamata prima di metrics_init\n");
+        return;
+    }
+    metrics_compute_lead_time_medio();
+    metrics_compute_tempi_medi_stazione();
+    metrics_compute_tasso_scarto();
+    metrics_compute_deviazione_gom_media();
+}
