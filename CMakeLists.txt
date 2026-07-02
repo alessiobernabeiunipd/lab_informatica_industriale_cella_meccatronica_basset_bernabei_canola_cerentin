@@ -19,6 +19,7 @@ add_subdirectory(libs/model)
 add_subdirectory(libs/parsing)
 add_subdirectory(libs/io)
 add_subdirectory(libs/stats)
+add_subdirectory(libs/controller)
 
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)

@@ -1,13 +1,5 @@
 #include "pezzo.h"
 
-void add_pezzo( pezzo **list_head, pezzo *to_add){
-    to_add->next = NULL;                                    //valuta se la testa punta a null (collegamento primo pezzo), altrimenti chiama fun ausiliaria
-    if(*list_head == NULL){
-        *list_head = to_add;
-        return;
-    }
-    add_other_pezzo(*list_head, to_add);
-}
 
 // funzione ausiliaria per add_pezzo, aggiunge il pezzo in coda alla lista
 static void add_other_pezzo( pezzo *list_head, pezzo *to_add){
@@ -15,6 +7,15 @@ static void add_other_pezzo( pezzo *list_head, pezzo *to_add){
         list_head = list_head->next;
     }
     list_head->next = to_add;
+}
+
+void add_pezzo( pezzo **list_head, pezzo *to_add){
+    to_add->next = NULL;                                    //valuta se la testa punta a null (collegamento primo pezzo), altrimenti chiama fun ausiliaria
+    if(*list_head == NULL){
+        *list_head = to_add;
+        return;
+    }
+    add_other_pezzo(*list_head, to_add);
 }
 
 void add_pezzo_next_in_production( pezzo **list_head, pezzo *to_add){           

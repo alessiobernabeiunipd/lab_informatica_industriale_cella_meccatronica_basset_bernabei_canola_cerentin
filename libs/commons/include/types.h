@@ -16,12 +16,7 @@ int inizio_gom;
 int uscita;
 }timestamps;
 
-//Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
-//Permette di creare più buffer con dimensioni diverse.
-typedef struct buffer{
-    pezzo **array;
-    int array_size;
-} buffer;
+
 
 //struttura per contenere le caratteristiche della struttura che vengono passate col pezzo (caratteritìstiche variano in base al pezzo in lavorazione)
 //implementato come un array con un n° di struct = numero di pezzi diversi
@@ -65,6 +60,13 @@ typedef struct pezzo{
     float deviazione_gom;        //inizializzato a zero
     struct pezzo *next;
 }pezzo;
+
+//Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
+//Permette di creare più buffer con dimensioni diverse.
+typedef struct buffer{
+    pezzo **array;
+    int array_size;
+} buffer;
 
 typedef enum{
     IDLE,

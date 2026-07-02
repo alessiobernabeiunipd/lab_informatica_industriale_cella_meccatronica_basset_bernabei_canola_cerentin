@@ -4,7 +4,7 @@ static void unload_all(cella_meccatronica *c){
     //scarico il pezzo dal gom e valuto la sua conformità alle specifiche
     pezzo *pgom = gom_unload_and_evaluate(c->gom, c->tick_corrente);
     if(pgom != NULL)
-        quality_control(&(c->pezzi_completati), &(c->pezzi_scartati), c->list_head, pgom);
+        quality_control(&(c->pezzi_completati), &(c->pezzi_scartati), (&c->list_head), pgom);
 
     //valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dalla pressa
     if(is_full(c->buf_gom)==0){

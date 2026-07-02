@@ -3,6 +3,7 @@
 #define CELLA_H
 
 #include "pezzo.h"
+#include "buffer.h"
 
 #define GOM_TMAX 27.0f
 #define GOM_DEV_MIN 0.0f
@@ -12,6 +13,8 @@
 //initialize cella with ticks and stats to zero, structs in idle state and head list to NULL
 cella_meccatronica *init_cella();
 
+//initialize buffer in cella, it is necessary to parse cella_meccatronica.param before calling
+int *init_cella_buf(cella_meccatronica *c);
 
 //initialize agv
 AGV *init_agv();

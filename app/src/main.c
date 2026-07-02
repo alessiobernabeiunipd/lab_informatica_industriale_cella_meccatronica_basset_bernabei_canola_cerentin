@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// TODO: Includere gli header delle librerie necessarie (commons, model, parsing, controllore)
-// #include "types.h"
-// #include "parsing.h"
-// #include "cella.h"
-// #include "controllore.h"
+#include "controller.h"
+#include "logger.h"
 
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
-
+    
+    log_info(10, "ciao susino");
     /*
      * FASE 1: PARSING E CARICAMENTO DELLE CONFIGURAZIONI
      * 
@@ -32,7 +30,6 @@ int main(void) {
      * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
      *   durata massima della simulazione, temperatura iniziale, ecc.).
      */
-
 
     /*
      * FASE 3: GENERAZIONE DEI PEZZI DAGLI ORDINI

@@ -41,7 +41,7 @@ cella_meccatronica *init_cella(/*parametri_simulazione param*/){
 
     c->list_head = NULL;
     */
-    c->buf_lam = init_buffer(c->param.capacita_buffer_laminazione);
+    c->buf_lam = initialize(c->param.capacita_buffer_laminazione);
     if (c->buf_lam == NULL) {
         free(c->agv);
         free(c->laminazione); 
@@ -50,7 +50,7 @@ cella_meccatronica *init_cella(/*parametri_simulazione param*/){
         free(c); 
         return 0;
     }
-    c->buf_pressa = init_buffer(c->param.capacita_buffer_pressa);
+    c->buf_pressa = initialize(c->param.capacita_buffer_pressa);
      if (c->buf_pressa == NULL) {
         free(c->buf_lam);
         free(c->agv);
@@ -60,7 +60,7 @@ cella_meccatronica *init_cella(/*parametri_simulazione param*/){
         free(c); 
         return 0;
     }
-    c->buf_gom= init_buffer(c->param.capacita_buffer_gom);
+    c->buf_gom= initialize(c->param.capacita_buffer_gom);
      if (c->buf_gom == NULL) {
         free(c->buf_pressa);
         free(c->buf_lam);
@@ -244,6 +244,16 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
         gom->tick_cooling_rimasti = GOM_COOLING_TIME;
     }
 }
+
+// Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
+// in base alle specifiche da catalogo
+static piece_status gom_evaluate(pezzo *p){                                   
+    p->deviazione_gom = random_float(GOM_DEV_MIN, GOM_DEV_MAX);
+    if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom)
+        return SCRAP;
+    else return OK;                                                                   
+}
+
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick) {
     if ((gom->stato == COOLING || gom->stato == BUSY) && gom->tick_lavorazione_rimasti <= 0) {
         if(gom->stato == BUSY)
@@ -260,15 +270,6 @@ pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick) {
         return p;
     }
     return NULL;
-}
-
-// Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
-// in base alle specifiche da catalogo
-static piece_status gom_evaluate(pezzo *p){                                   
-    p->deviazione_gom = random_float(GOM_DEV_MIN, GOM_DEV_MAX);
-    if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom)
-        return SCRAP;
-    else return OK;                                                                   
 }
 
 void quality_control ( int *ok, int *scrap, pezzo **list_head, pezzo *p){
