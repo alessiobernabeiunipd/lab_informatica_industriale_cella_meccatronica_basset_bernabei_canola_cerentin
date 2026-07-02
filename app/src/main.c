@@ -157,6 +157,22 @@ int main(void) {
     log_info(0, "FASE 3 Completata: Generazione Pezzi Svolta");
     log_info_f(0, "  - Generati in totale %d pezzi dagli ordini.", id_pezzo_counter - 1);
 
+    log_info(0, "=== ELENCO DEI PEZZI DA PRODURRE ===");
+    pezzo *curr_print = cella->list_head;
+    while (curr_print != NULL) {
+        log_info_f(0, "  Pezzo ID: %02d | Ordine ID: %d | Priorita: %d | Deadline: %4d tick | Lam Nom: %2d tick | Pres Nom: %2d tick | GOM Nom: %2d tick | Max Dev GOM: %.2f", 
+                   curr_print->id_pezzo, 
+                   curr_print->ID_ordine, 
+                   curr_print->priorità, 
+                   curr_print->deadline_ticks, 
+                   curr_print->valori_nom.t_laminazione_nominale, 
+                   curr_print->valori_nom.t_pressa_nominale, 
+                   curr_print->valori_nom.t_gom, 
+                   curr_print->valori_nom.deviazione_max_gom / 100.0f);
+        curr_print = curr_print->next;
+    }
+    log_info(0, "====================================");
+
 
     /*
      * FASE 4: AVVIO E ESECUZIONE DEL CICLO DELLA SIMULAZIONE (LOOP DEI TICK)
