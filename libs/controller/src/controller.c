@@ -47,13 +47,16 @@ static void load_all(cella_meccatronica *c){
     }
      
     //uso un case switch per selezionare politica di ctrl
-
-    // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
-    pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
-    if(pagv != NULL)
-    //non serve una condizione di controllo se agv è libero, è integrata in agv_get_mold.
-    //agv non parte se non è libero
-    agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
+    if(strcmp(c->param.politica_controllo, "fcfs")){
+        // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
+        pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
+        if(pagv != NULL)
+        //non serve una condizione di controllo se agv è libero, è integrata in agv_get_mold.
+        //agv non parte se non è libero
+        agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
+    }
+    //else if(strcmp(c->param.politica_controllo,"priorità"))
+    
 } 
 
 static void tick_all(cella_meccatronica *c){

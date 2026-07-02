@@ -99,20 +99,16 @@ typedef struct {
 }stazione_GOM;
 
 typedef struct {
-    int magazzino_lam;
-    int magazzino_pressa;
-    int lam_pressa;
-}tempi_viaggio;
-
-typedef struct {
     float max_area_pressa;
     int capacita_buffer_laminazione;
     int capacita_buffer_pressa;
     int capacita_buffer_gom;
     char politica_controllo[32];
+    //può assumere i valori fcfs o priorità
     float temperatura_ambiente_iniziale;
     float temperatura_incremento_minuto;
     int durata_simulazione_max;
+    int tempo_agv;
 } parametri_simulazione;
 
 typedef struct {
@@ -121,14 +117,11 @@ typedef struct {
     stazione_GOM          *gom;
     AGV                   *agv;
 
-    buffer buf_lam;
-    buffer buf_pressa;
-    buffer buf_gom;
-
-    tempi_viaggio tempi;
+    buffer *buf_lam;
+    buffer *buf_pressa;
+    buffer *buf_gom;
 
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
-    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
    
     pezzo *list_head;               //punta al primo elemento della linked list
     int pezzi_completati;            //due contatori per le statistiche
