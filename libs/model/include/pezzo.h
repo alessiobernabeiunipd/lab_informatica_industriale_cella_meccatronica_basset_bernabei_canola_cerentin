@@ -8,10 +8,7 @@ concatenata o del singolo pezzo*/
 //OPERAZIONS ON THE LIST
 
 //add the first pezzo modifying list head
-void add_pezzo( pezzo **list_head, pezzo *to_add);
-
-//add a passed pezzo struct in the back of the list
-void add_other_pezzo( pezzo *list_head, pezzo *to_add);     
+void add_pezzo( pezzo **list_head, pezzo *to_add); 
 
 /*add a passed pezzo struct to make it the next pezzo to start production. Returns null if operation was interrupter for malloc issues. 
 If no piece with WAITING_INPUT status is found the piece is added at the end of the list*/

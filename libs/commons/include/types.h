@@ -1,9 +1,10 @@
-#ifndef types_h
-#define types_h
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 //struttura che contiene i tempi come istanti temporali in cui il pezzo compie un'azione determinata
 // uscita - ingresso = lead time; i tre inizio_x vengono impiegati per il tempo macchina effettivo
@@ -14,6 +15,8 @@ int inizio_pressa;
 int inizio_gom; 
 int uscita;
 }timestamps;
+
+
 
 //struttura per contenere le caratteristiche della struttura che vengono passate col pezzo (caratteritìstiche variano in base al pezzo in lavorazione)
 //implementato come un array con un n° di struct = numero di pezzi diversi
@@ -58,6 +61,13 @@ typedef struct pezzo{
     struct pezzo *next;
 }pezzo;
 
+//Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
+//Permette di creare più buffer con dimensioni diverse.
+typedef struct buffer{
+    pezzo **array;
+    int array_size;
+} buffer;
+
 typedef enum{
     IDLE,
     BUSY,
@@ -91,20 +101,16 @@ typedef struct {
 }stazione_GOM;
 
 typedef struct {
-    int magazzino_lam;
-    int magazzino_pressa;
-    int lam_pressa;
-}tempi_viaggio;
-
-typedef struct {
     float max_area_pressa;
     int capacita_buffer_laminazione;
     int capacita_buffer_pressa;
     int capacita_buffer_gom;
     char politica_controllo[32];
+    //può assumere i valori fcfs o priorità
     float temperatura_ambiente_iniziale;
     float temperatura_incremento_minuto;
     int durata_simulazione_max;
+    int tempo_agv;
 } parametri_simulazione;
 
 typedef struct {
@@ -132,10 +138,11 @@ typedef struct {
     stazione_GOM          *gom;
     AGV                   *agv;
 
-    tempi_viaggio tempi;
+    buffer *buf_lam;
+    buffer *buf_pressa;
+    buffer *buf_gom;
 
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
-    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
    
     pezzo *list_head;               //punta al primo elemento della linked list
     metriche_t metrics;

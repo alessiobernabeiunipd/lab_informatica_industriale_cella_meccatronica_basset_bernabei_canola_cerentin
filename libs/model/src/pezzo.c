@@ -1,19 +1,21 @@
 #include "pezzo.h"
 
+
+// funzione ausiliaria per add_pezzo, aggiunge il pezzo in coda alla lista
+static void add_other_pezzo( pezzo *list_head, pezzo *to_add){
+    while(list_head->next != NULL){
+        list_head = list_head->next;
+    }
+    list_head->next = to_add;
+}
+
 void add_pezzo( pezzo **list_head, pezzo *to_add){
-    to_add->next = NULL;
+    to_add->next = NULL;                                    //valuta se la testa punta a null (collegamento primo pezzo), altrimenti chiama fun ausiliaria
     if(*list_head == NULL){
         *list_head = to_add;
         return;
     }
     add_other_pezzo(*list_head, to_add);
-}
-
-void add_other_pezzo( pezzo *list_head, pezzo *to_add){
-    while(list_head->next != NULL){
-        list_head = list_head->next;
-    }
-    list_head->next = to_add;
 }
 
 void add_pezzo_next_in_production( pezzo **list_head, pezzo *to_add){           
@@ -36,7 +38,8 @@ pezzo *first_pezzo_with_status(pezzo *list_head, piece_status status){
     return list_head;
 }
 
-pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status) {      //attraversa tutta la lista tenendosi traccia dell'ultimo nodo trovato con un certo status
+//attraversa tutta la lista tenendosi traccia dell'ultimo nodo trovato con un certo status
+pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status) {      
     pezzo *last = NULL;
     while (list_head != NULL) {
         if (list_head->stato == status) {

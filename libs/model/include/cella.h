@@ -3,6 +3,7 @@
 #define CELLA_H
 
 #include "pezzo.h"
+#include "buffer.h"
 
 #define GOM_TMAX 27.0f
 #define GOM_DEV_MIN 0.0f
@@ -12,6 +13,8 @@
 //initialize cella with ticks and stats to zero, structs in idle state and head list to NULL
 cella_meccatronica *init_cella();
 
+//initialize buffer in cella, it is necessary to parse cella_meccatronica.param before calling
+int *init_cella_buf(cella_meccatronica *c);
 
 //initialize agv
 AGV *init_agv();
@@ -19,7 +22,7 @@ AGV *init_agv();
 // Ritorna true se l'AGV è libero (IDLE), false se occupato (BUSY).
 int agv_is_free(AGV *agv);
 
-// Assegna un pezzo all'AGV e avvia il trasporto. tick_viaggio è la durata in tick.
+// Assegna un pezzo all'AGV e avvia il trasporto (se agv è disponibile). tick_viaggio è la durata in tick.
 void agv_get_mold(AGV *agv, pezzo *p, int tick_viaggio, int tick);
 
 // Ritorna il pezzo se il viaggio è terminato e porta l'AGV in IDLE, altrimenti NULL.
@@ -81,14 +84,10 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param);
 // Ritorna true se la stazione è libera (IDLE), false se occupata (BUSY).
 int gom_is_free(stazione_GOM *gom);
 
-// Ritorna il pezzo se la laminazione è terminata e porta la stazione in IDLE, altrimenti NULL.
-// Da chiamare prima di laminazione_tick().
+// Ritorna il pezzo se la scansione è terminata e porta la stazione in IDLE, altrimenti NULL.
+// Da chiamare prima di gom_tick().
 // Chiama gom_evaluate al suo interno
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick);
-
-// Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
-// in base alle specifiche da catalogo
-piece_status gom_evaluate(pezzo *p);
 
 // Valuta lo stato di un pezzo:
 // OK: aumenta contatore

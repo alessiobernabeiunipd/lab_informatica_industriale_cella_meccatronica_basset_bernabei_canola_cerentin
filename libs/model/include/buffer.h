@@ -11,15 +11,7 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <stdbool.h>
 #include "types.h"
-
-//Struttura contenente un array di puntatori a pezzo, che rappresenta il buffer.
-//Permette di creare più buffer con dimensioni diverse.
-typedef struct buffer{
-    pezzo **array;
-    int array_size;
-} buffer;
 
 /*Inizializza un buffer vuoto nell'heap e ne restituisce una struttura buffer*/
 buffer *initialize(int buffer_size);
