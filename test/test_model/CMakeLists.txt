@@ -1,4 +1,5 @@
 project(test_model
+        LANGUAGES C
         DESCRIPTION "test per la libreria model"
 )
 add_executable(model_lib_test src/test.c)

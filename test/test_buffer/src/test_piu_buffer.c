@@ -4,17 +4,17 @@
 
 #include "buffer.h"
 
-void print_list(Pezzo *head){
-    Pezzo *current;
+void print_list(pezzo *head){
+    pezzo *current;
     for(current = head; current != NULL; current = current->next)
         printf("Pezzo ID: %d\n", current->id_pezzo);
 
     printf("\n");
 }
 
-void delete_list(Pezzo *head){
-    Pezzo *current = head;
-    Pezzo *next;
+void delete_list(pezzo *head){
+    pezzo *current = head;
+    pezzo *next;
 
     while(current != NULL){
         next = current->next;
@@ -23,8 +23,8 @@ void delete_list(Pezzo *head){
     }
 }
 
-void main(){
-    Pezzo *head = NULL;
+int main(void){
+    pezzo *head = NULL;
 
     buffer *buffer_a = initialize(6);
     buffer *buffer_b = initialize(7);
@@ -32,7 +32,7 @@ void main(){
 
     int i = 0;
     while(!is_full(buffer_c)){
-        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
+        pezzo *nuovo_pezzo = malloc(sizeof(pezzo));
 
         if(nuovo_pezzo == NULL){
             printf("Errore: memoria non allocata correttamente in main()\n");
@@ -54,7 +54,7 @@ void main(){
 
 
     while(!is_empty(buffer_a)){
-        Pezzo *nuovo_pezzo;
+        pezzo *nuovo_pezzo = NULL;
 
         if(!is_empty(buffer_c))
             nuovo_pezzo = take_item(buffer_c);
@@ -63,7 +63,9 @@ void main(){
         else if(!is_empty(buffer_a))
             nuovo_pezzo = take_item(buffer_a);
 
-        printf("Pezzo ID: %d\n", nuovo_pezzo->id_pezzo);
+        if (nuovo_pezzo != NULL) {
+            printf("Pezzo ID: %d\n", nuovo_pezzo->id_pezzo);
+        }
     }
 
     printf("\nLa lista di partenza era:\n");
@@ -73,4 +75,5 @@ void main(){
     terminate(buffer_a);
     terminate(buffer_b);
     terminate(buffer_c);
+    return 0;
 }
