@@ -21,6 +21,7 @@ typedef struct {
     int tempo_completamento_massimo;
 } ordine_entry;
 
+// Struttura per memorizzare i parametri generali di simulazione
 //spostato in types.h
 
 // Ritorna il numero di elementi letti, alloca l'array di output in *entries. Ritorna -1 in caso di errore.

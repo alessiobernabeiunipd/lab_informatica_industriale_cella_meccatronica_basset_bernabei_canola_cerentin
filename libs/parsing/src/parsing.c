@@ -29,7 +29,7 @@ static void trim(char *str) {
 static FILE* open_file_probed(const char *filepath) {
     FILE *f = fopen(filepath, "r");
     if (f != NULL) {
-        return f;
+        return f; 
     }
     
     if (strncmp(filepath, "input/", 6) == 0) {

@@ -1,6 +1,4 @@
-project(model_lib
-       LANGUAGES C
-       DESCRIPTION "libreria di funzioni per agire su tipi e strutture")
+project(model_lib C)
 
 add_library(model STATIC 
     src/pezzo.c
