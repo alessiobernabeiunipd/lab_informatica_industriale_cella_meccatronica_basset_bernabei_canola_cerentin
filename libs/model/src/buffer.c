@@ -6,7 +6,12 @@
 
 buffer *initialize(int buffer_size){
     buffer *buf = malloc(sizeof(buffer));
-    buf->array = malloc(buffer_size * sizeof(Pezzo));
+    if (buf == NULL) return NULL;
+    buf->array = malloc(buffer_size * sizeof(pezzo *));
+    if (buf->array == NULL) {
+        free(buf);
+        return NULL;
+    }
     buf->array_size = buffer_size;
 
     for(int i = 0; i < buffer_size; i++)
@@ -14,7 +19,7 @@ buffer *initialize(int buffer_size){
     return buf;
 }
 
-void new_item(Pezzo *head, buffer *buf){
+void new_item(pezzo *head, buffer *buf){
     if(is_full(buf)){
         printf("Errore: questo buffer è pieno\n");
         return;
@@ -30,14 +35,14 @@ void new_item(Pezzo *head, buffer *buf){
     }
 }
 
-Pezzo *take_item(buffer *buf){
+pezzo *take_item(buffer *buf){
     if(is_empty(buf)){
         printf("Errore: questo buffer è vuoto\n");
         return NULL;
     }
 
     else{
-        Pezzo *in_uscita = buf->array[0];
+        pezzo *in_uscita = buf->array[0];
         for(int i = 0; i < buf->array_size-1; i++)
             buf->array[i] = buf->array[i+1];
 
@@ -63,9 +68,8 @@ bool is_empty(buffer *buf){
 }
 
 void terminate(buffer *buf){
-    for(int i = 0; i < buf->array_size; i++){
-        free(buf->array[i]);
-    }
+    // Nota: gli elementi pezzo* all'interno del buffer fanno parte della lista globale
+    // e verranno liberati durante il cleanup della cella. Qui liberiamo solo la struttura del buffer.
     free(buf->array);
     free(buf);
 }
