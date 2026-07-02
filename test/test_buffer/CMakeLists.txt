@@ -1,6 +1,4 @@
-project(test_buffer
-        DESCRIPTION "test per la libreria di buffer"
-)
+project(test_buffer C)
 add_executable(buffer_lib_test src/test_piu_buffer.c)
 
 target_link_libraries( buffer_lib_test 
