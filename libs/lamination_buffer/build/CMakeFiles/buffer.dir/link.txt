@@ -1,2 +1,0 @@
-/usr/bin/ar qc libbuffer.a CMakeFiles/buffer.dir/src/buffer.c.o
-/usr/bin/ranlib libbuffer.a

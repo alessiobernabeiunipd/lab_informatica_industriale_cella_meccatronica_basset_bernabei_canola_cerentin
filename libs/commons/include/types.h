@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 //struttura che contiene i tempi come istanti temporali in cui il pezzo compie un'azione determinata
 // uscita - ingresso = lead time; i tre inizio_x vengono impiegati per il tempo macchina effettivo
@@ -14,6 +15,13 @@ int inizio_pressa;
 int inizio_gom; 
 int uscita;
 }timestamps;
+
+//Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
+//Permette di creare più buffer con dimensioni diverse.
+typedef struct buffer{
+    pezzo **array;
+    int array_size;
+} buffer;
 
 //struttura per contenere le caratteristiche della struttura che vengono passate col pezzo (caratteritìstiche variano in base al pezzo in lavorazione)
 //implementato come un array con un n° di struct = numero di pezzi diversi
@@ -112,6 +120,10 @@ typedef struct {
     stazione_pressa       *pressa;
     stazione_GOM          *gom;
     AGV                   *agv;
+
+    buffer buf_lam;
+    buffer buf_pressa;
+    buffer buf_gom;
 
     tempi_viaggio tempi;
 

@@ -1,6 +1,6 @@
 #include "cella.h"
 
-cella_meccatronica *init_cella(){
+cella_meccatronica *init_cella(/*parametri_simulazione param*/){
     cella_meccatronica *c = malloc(sizeof(cella_meccatronica));
     if (c == NULL) return NULL;
     
@@ -30,20 +30,49 @@ cella_meccatronica *init_cella(){
         free(c); 
         return NULL;
     }
-
+    /*
+    c->param = param;
     c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
-    c->tempi.lam_pressa = 0;
-    c->tempi.magazzino_lam = 0;
-    c->tempi.magazzino_pressa = 0;
+    c->tempo_agv = c->param.tempo_agv
 
     c->tick_corrente = 0;
     c->pezzi_completati = 0;
     c->pezzi_scartati = 0;
 
     c->list_head = NULL;
+    */
+    c->buf_lam = init_buffer(c->param.capacita_buffer_laminazione);
+    if (c->buf_lam == NULL) {
+        free(c->agv);
+        free(c->laminazione); 
+        free(c->pressa); 
+        free(c->gom); 
+        free(c); 
+        return 0;
+    }
+    c->buf_pressa = init_buffer(c->param.capacita_buffer_pressa);
+     if (c->buf_pressa == NULL) {
+        free(c->buf_lam);
+        free(c->agv);
+        free(c->laminazione); 
+        free(c->pressa); 
+        free(c->gom); 
+        free(c); 
+        return 0;
+    }
+    c->buf_gom= init_buffer(c->param.capacita_buffer_gom);
+     if (c->buf_gom == NULL) {
+        free(c->buf_pressa);
+        free(c->buf_lam);
+        free(c->agv);
+        free(c->laminazione); 
+        free(c->pressa); 
+        free(c->gom); 
+        free(c); 
+        return 0;
+    }
     return c;
 }
-
 
 //AGV
 AGV *init_agv(){
