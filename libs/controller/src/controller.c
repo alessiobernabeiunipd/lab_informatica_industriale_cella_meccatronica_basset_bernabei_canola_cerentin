@@ -47,7 +47,7 @@ static void load_all(cella_meccatronica *c){
     }
      
     //uso un case switch per selezionare politica di ctrl
-    if(strcmp(c->param.politica_controllo, "fcfs")){
+    if(strcmp(c->param.politica_controllo, "fcfs") == 0){
         // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
         pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
         if(pagv != NULL)

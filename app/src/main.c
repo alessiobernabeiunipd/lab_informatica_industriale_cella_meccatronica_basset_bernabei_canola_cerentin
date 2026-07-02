@@ -169,7 +169,9 @@ int main(void) {
      *        e lo spostamento dei pezzi tra i buffer.
      *     2. (Opzionale) Stampare o loggare lo stato corrente della cella a fini di debug/simulazione.
      */
-    // TODO: implementare Fase 4
+    log_info(0, "FASE 4: Avvio del ciclo di simulazione...");
+    controller(cella);
+    log_info_f(cella->tick_corrente - 1, "FASE 4 Completata: Ciclo di simulazione terminato.");
 
 
     /*
