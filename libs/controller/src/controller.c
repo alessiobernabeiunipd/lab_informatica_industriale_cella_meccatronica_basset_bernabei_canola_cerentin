@@ -1,30 +1,49 @@
 #include "controller.h"
+#include "logger.h"
+#include "metrics.h"
 
 static void unload_all(cella_meccatronica *c){
     //scarico il pezzo dal gom e valuto la sua conformità alle specifiche
     pezzo *pgom = gom_unload_and_evaluate(c->gom, c->tick_corrente);
-    if(pgom != NULL)
+    if(pgom != NULL){
         quality_control(&(c->pezzi_completati), &(c->pezzi_scartati), (&c->list_head), pgom);
+        if(pgom->stato == OK){
+            record_piece_done(pgom);
+            log_info_f(c->tick_corrente, "Pezzo %d completato (lead time %d tick)", pgom->id_pezzo, pgom->lead_time);
+        } else {
+            record_piece_scrap(pgom);
+            log_warning_f(c->tick_corrente, "Pezzo %d scartato al GOM, reinserito in produzione", pgom->id_pezzo);
+        }
+    }
 
     //valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dalla pressa
     if(is_full(c->buf_gom)==0){
         pezzo *ppres = pressa_unload(c->pressa, c->tick_corrente);
         if(ppres != NULL)
         new_item(ppres, c->buf_gom);
+    } else {
+        record_block();
+        log_warning_f(c->tick_corrente, "Buffer GOM pieno: scarico dalla pressa bloccato");
     }
     //valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dalla laminazione
     if(is_full(c->buf_pressa)==0){
         pezzo *plam = laminazione_unload(c->laminazione, c->tick_corrente);
         if(plam != NULL)
         new_item(plam, c->buf_pressa);
+    } else {
+        record_block();
+        log_warning_f(c->tick_corrente, "Buffer pressa pieno: scarico dalla laminazione bloccato");
     }
     // valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dall'agv
     if(is_full(c->buf_lam)==0){
         pezzo *pagv = agv_unload(c->agv);
         if(pagv != NULL)
         new_item(pagv, c->buf_lam);
+    } else {
+        record_block();
+        log_warning_f(c->tick_corrente, "Buffer laminazione pieno: scarico dall'AGV bloccato");
     }
-} 
+}
 
 static void load_all(cella_meccatronica *c){
     // prendo dal buffer il primo elemento (puntatore a pezzo) e valuto se esiste o è NULL
@@ -71,6 +90,8 @@ static void tick_all(cella_meccatronica *c){
 }
 
 void controller(cella_meccatronica *c){
+    log_info_f(c->tick_corrente, "Avvio simulazione: durata massima %d tick", c->param.durata_simulazione_max);
+
     while(c->tick_corrente <= c->param.durata_simulazione_max){
     //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.
     //vengono prima effettuati tutti gli unload, poi load, infine tick
@@ -81,4 +102,9 @@ void controller(cella_meccatronica *c){
     //incremento il conteggio dei tick che tengono traccia dello scorrere del tempo
     c->tick_corrente++;
     }
+
+    metrics_finalize();
+
+    log_info_f(c->tick_corrente, "Simulazione terminata: %d pezzi completati, %d pezzi scartati",
+               c->pezzi_completati, c->pezzi_scartati);
 }
