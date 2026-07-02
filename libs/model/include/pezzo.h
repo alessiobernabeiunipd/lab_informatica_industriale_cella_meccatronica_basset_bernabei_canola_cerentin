@@ -23,6 +23,9 @@ pezzo *first_pezzo_with_status(pezzo *list_head, piece_status status);
 //return ptr to last pezzo in the list with a specific status. Returns NULL is no piece has the requested status
 pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status);
 
+/*funzione per la ricerca del pezzo a priorità più alta dato un certo status e ritorna il puntatore al pezzo*/
+pezzo *high_priority(pezzo *list_head, piece_status status);
+
 
 //OPERATIONS ON A SINGLE PEZZO
 
@@ -44,6 +47,5 @@ piece_status get_status(pezzo *p);
 /*updates nominal times with catalogue values, given the pointer to the piece and to the catalogue array. id_pezzo field needs to be initialized.
 Returns without doing anithing if the pointer to valori_nominali is NULL*/
 void set_nominal_times(pezzo *p, valori_nominali *v);
-
 
 #endif
