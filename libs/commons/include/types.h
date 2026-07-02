@@ -112,6 +112,25 @@ typedef struct {
 } parametri_simulazione;
 
 typedef struct {
+int pezzi_completati;
+int pezzi_scartati;
+int pezzi_totali;
+int pezzi_non_finiti;
+int pezzi_in_ritardo; // pezzi che hanno superato la deadline
+int rilavorazioni; // pezzi che hanno subito rilavorazioni
+float tasso_scarto; // pezzi_scartati / pezzi_totali
+float lead_time_medio;
+float tempo_laminazione_medio; //media tempo laminazione effettivo
+float tempo_pressa_medio;
+float tempo_gom_medio;
+float deviazione_gom_medio;
+int tick_totali; // durata effettiva sim
+int blocchi_buffer_pieno;
+int errori_simulazione;
+} metriche_t;
+
+
+typedef struct {
     stazione_laminazione  *laminazione;
     stazione_pressa       *pressa;
     stazione_GOM          *gom;
@@ -124,10 +143,12 @@ typedef struct {
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
    
     pezzo *list_head;               //punta al primo elemento della linked list
-    int pezzi_completati;            //due contatori per le statistiche
-    int pezzi_scartati;
+    metriche_t metrics;
+    int pezzi_completati; // da togleire
+    int pezzi_scartati; // da togliere
 
     parametri_simulazione param;
 } cella_meccatronica;
+
 
 #endif
