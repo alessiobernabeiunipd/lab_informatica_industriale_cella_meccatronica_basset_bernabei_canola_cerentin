@@ -1,6 +1,10 @@
 #ifndef types_h
 #define types_h
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 //struttura che contiene i tempi come istanti temporali in cui il pezzo compie un'azione determinata
 // uscita - ingresso = lead time; i tre inizio_x vengono impiegati per il tempo macchina effettivo
 typedef struct { 
@@ -23,6 +27,7 @@ typedef struct{
 //struttura per contenere gli status che può assumere il pezzo
 typedef enum{                                                                   
     CREATED, // letto dal CSV ma non ancora in lavorazione
+    TRAVELING,// in viaggio sull'AGV
     WAITING_INPUT, //in attesa nel buffer iniziale.
     IN_LAMINATION, // il pezzo sta venendo laminato
     WAITING_PRESS, // nel buffer pre-pressa.
@@ -41,11 +46,13 @@ typedef struct pezzo{
     int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
     int priorità; 
     int deadline_ticks;         // entro quando devo completare il pezzo? sono nei tempi richiesti?
-    valori_nominali *valori_nom; // puntatore all'array catalogo valori_nominali                            (sottostruttura statica)
+    valori_nominali valori_nom; // copia catalogo valori_nominali                            (sottostruttura statica)
     piece_status stato;             //monitora avanzamento del pezzo                                        (sottostruttura)
     timestamps ts;                  //contiene valori che verranno usati per le tre statistuche sottostanti (sottostruttura)
     int tempo_laminazione_effettivo;
     int tempo_pressa_effettivo; 
+    int tempo_gom_effettivo;
+
     int lead_time; 
     float deviazione_gom;        //inizializzato a zero
     struct pezzo *next;
@@ -54,7 +61,7 @@ typedef struct pezzo{
 typedef enum{
     IDLE,
     BUSY,
-    BROKEN,
+    COOLING,
 }station_status;
 
 typedef struct { 
@@ -71,31 +78,51 @@ typedef struct {
 
 typedef struct { 
     station_status stato;
-    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se cooling metto in pausa. inizializzare a 0
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
 }stazione_pressa;
 
 typedef struct { 
     station_status stato;
     int tick_lavorazione_rimasti; //tick rimanenti per finire il lavoro corrente, se broken metto in pausa. inizializzare a 0
+    int tick_cooling_rimasti;
     pezzo *pezzo_in_lavorazione; //inizializzare a NULL
-    float temperatura_GOM;
+    float t_GOM;
 }stazione_GOM;
 
 typedef struct {
-    stazione_laminazione  laminazione;
-    stazione_pressa       pressa;
-    stazione_GOM          gom;
-    AGV                   agv;
+    int magazzino_lam;
+    int magazzino_pressa;
+    int lam_pressa;
+}tempi_viaggio;
+
+typedef struct {
+    float max_area_pressa;
+    int capacita_buffer_laminazione;
+    int capacita_buffer_pressa;
+    int capacita_buffer_gom;
+    char politica_controllo[32];
+    float temperatura_ambiente_iniziale;
+    float temperatura_incremento_minuto;
+    int durata_simulazione_max;
+} parametri_simulazione;
+
+typedef struct {
+    stazione_laminazione  *laminazione;
+    stazione_pressa       *pressa;
+    stazione_GOM          *gom;
+    AGV                   *agv;
+
+    tempi_viaggio tempi;
 
     int tick_corrente;               //parametri della simulazione, sono nella struct per avere 
-    int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza.
+    //int tick_fine_simulazione;       //il minor numero di elementi passati all'ingresso della simulazione, per compattezza. BUTTIAMO N PARAMETRI SIM
    
-    pezzo *pezzi_head;               //punta al primo elemento della linked list
+    pezzo *list_head;               //punta al primo elemento della linked list
     int pezzi_completati;            //due contatori per le statistiche
     int pezzi_scartati;
-    
-    
+
+    parametri_simulazione param;
 } cella_meccatronica;
 
 #endif

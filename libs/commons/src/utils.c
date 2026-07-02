@@ -1,12 +1,9 @@
-#include <stdio.h>      // system headers with angle brackets
-#include <string.h>
-#include <stdlib.h>
-
 #include "utils.h"    
 
 const char* status_pezzo_to_string(piece_status s){
     switch (s){
     case CREATED:           return "CREATED";
+    case TRAVELING:         return "TRAVELING";
     case WAITING_INPUT:     return "WAITING_INPUT";
     case IN_LAMINATION:     return "IN_LAMINATION";
     case WAITING_PRESS:     return "WAITING_PRESS";
@@ -24,8 +21,12 @@ const char* status_station_to_string(station_status s){
     switch (s){
         case IDLE:          return "IDLE";
         case BUSY:          return "BUSY";
-        case BROKEN:        return "BROKEN";
+        case COOLING:       return "COOLING";
         default:            return "ERROR";
     }
 }
 
+float random_float(float min, float max) {
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
+ 

@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
-#include "controllore.h"
 #include "parsing.h"
+#include "cella.h"
+#include "controllore.h"
 
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");

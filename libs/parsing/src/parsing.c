@@ -68,7 +68,7 @@ static int count_csv_entries(const char *filepath) {
         if (strlen(line) == 0 || line[0] == '#') {
             continue;
         }
-        if (is_header) {
+        if (is_header) { //salta la prima linea
             is_header = 0;
             continue;
         }
