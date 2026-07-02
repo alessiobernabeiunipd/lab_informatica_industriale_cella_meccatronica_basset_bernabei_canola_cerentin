@@ -11,22 +11,7 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-//pezzo che viene lavorato, una struct definisce un pezzo singolo. 
-//linked list, probabilmente da eliminare.
-typedef struct pezzo{
-    int id_pezzo;
-    int ID_ordine;              // per identificare pezzi che appartengono allo stesso ordine. Utile per le stats finali per fare cfr su totale pezzi ordine vs pezzi prodotti e calcolare scarto
-    int priorità; 
-    int deadline_ticks;         // entro quando devo completare il pezzo? sono nei tempi richiesti?
-    //valori_nominali *tempi_nom; // pointer into the catalogue array 
-    //piece_status stato;
-    //timestamps ts;
-    int tempo_laminazione_effettivo;
-    int tempo_pressa_effettivo; 
-    int lead_time; 
-    float deviazione_gom;        //inizializzato a zero
-    struct pezzo *next;
-}Pezzo;
+#include "types.h"
 
 //Struttura contenente un array di puntatori a Pezzo, che rappresenta il buffer.
 //Permette di creare più buffer con dimensioni diverse.
