@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/piu_buffer_test.dir/src/test_piu_buffer.c.o -o piu_buffer_test  libbuffer.a 

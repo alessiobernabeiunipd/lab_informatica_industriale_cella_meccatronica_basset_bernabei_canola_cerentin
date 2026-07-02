@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/buffer_app_test.dir/src/test_buffer.c.o -o buffer_app_test  libbuffer.a 
