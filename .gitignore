@@ -13,3 +13,6 @@ DartConfig.tcl
 
 #tests
 test/test_common_structs/commons_lib_test
+
+# logs
+*.log

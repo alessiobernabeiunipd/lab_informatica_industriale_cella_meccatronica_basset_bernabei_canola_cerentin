@@ -3,10 +3,17 @@
 #include "types.h"
 #include "parsing.h"
 #include "cella.h"
-#include "controllore.h"
+#include "controller.h"
+#include "logger.h"
 
 int main(void) {
-    printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
+    // Inizializza il logger
+    if (logger_init("simulation.log") != 0) {
+        fprintf(stderr, "Errore: impossibile inizializzare il logger.\n");
+        return 1;
+    }
+
+    log_info(0, "=== AVVIO SIMULATORE CELLA MECCATRONICA ===");
 
     /*
      * FASE 1: PARSING E CARICAMENTO DELLE CONFIGURAZIONI
@@ -25,29 +32,32 @@ int main(void) {
         param_res = parse_parametri("input/simulation_parameters.txt", &params);
     }
     if (param_res != 0) {
-        fprintf(stderr, "Errore: impossibile caricare i parametri di simulazione.\n");
+        log_error(0, "Errore: impossibile caricare i parametri di simulazione.");
+        logger_close();
         return 1;
     }
 
     catalogo_entry *catalogo = NULL;
     int num_cat = parse_catalogo("input/catalogo.csv", &catalogo);
     if (num_cat <= 0) {
-        fprintf(stderr, "Errore: impossibile caricare il catalogo o catalogo vuoto.\n");
+        log_error(0, "Errore: impossibile caricare il catalogo o catalogo vuoto.");
+        logger_close();
         return 1;
     }
 
     ordine_entry *ordini = NULL;
     int num_ordini = parse_ordini("input/ordini.csv", &ordini);
     if (num_ordini <= 0) {
-        fprintf(stderr, "Errore: impossibile caricare gli ordini o nessun ordine presente.\n");
+        log_error(0, "Errore: impossibile caricare gli ordini o nessun ordine presente.");
         free(catalogo);
+        logger_close();
         return 1;
     }
 
-    printf("--- FASE 1 Completata: Configurazione Caricata ---\n");
-    printf("  - Parametri di simulazione pronti.\n");
-    printf("  - %d elementi presenti nel catalogo.\n", num_cat);
-    printf("  - %d ordini di produzione caricati.\n\n", num_ordini);
+    log_info(0, "FASE 1 Completata: Configurazione Caricata");
+    log_info(0, "  - Parametri di simulazione pronti.");
+    log_info_f(0, "  - %d elementi presenti nel catalogo.", num_cat);
+    log_info_f(0, "  - %d ordini di produzione caricati.", num_ordini);
 
 
     /*
@@ -59,21 +69,18 @@ int main(void) {
      * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
      *   durata massima della simulazione, temperatura iniziale, ecc.).
      */
-    cella_meccatronica *cella = init_cella();
+    cella_meccatronica *cella = init_cella(params);
     if (cella == NULL) {
-        fprintf(stderr, "Errore: inizializzazione della cella fallita.\n");
+        log_error(0, "Errore: inizializzazione della cella fallita.");
         free(catalogo);
         free(ordini);
+        logger_close();
         return 1;
     }
 
-    // Configura i parametri estratti
-    cella->param = params;
-    cella->gom->t_GOM = cella->param.temperatura_ambiente_iniziale;
-
-    printf("--- FASE 2 Completata: Cella e Stazioni Inizializzate ---\n");
-    printf("  - Stato delle stazioni impostato a IDLE.\n");
-    printf("  - Temperatura iniziale GOM: %.2f °C\n\n", cella->gom->t_GOM);
+    log_info(0, "FASE 2 Completata: Cella e Stazioni Inizializzate");
+    log_info(0, "  - Stato delle stazioni impostato a IDLE.");
+    log_info_f(0, "  - Temperatura iniziale GOM: %.2f °C", cella->gom->t_GOM);
 
 
     /*
@@ -133,8 +140,15 @@ int main(void) {
     if (cella->pressa) free(cella->pressa);
     if (cella->gom) free(cella->gom);
     if (cella->agv) free(cella->agv);
+    
+    // Libera i buffer della cella
+    if (cella->buf_lam) terminate(cella->buf_lam);
+    if (cella->buf_pressa) terminate(cella->buf_pressa);
+    if (cella->buf_gom) terminate(cella->buf_gom);
+    
     free(cella);
 
-    printf("=== SIMULAZIONE COMPLETATA CON SUCCESSO ===\n");
+    log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
+    logger_close();
     return 0;
 }
