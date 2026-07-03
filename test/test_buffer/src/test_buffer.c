@@ -1,57 +1,82 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "buffer.h"
+#include "unity.h"
 
-void print_list(Pezzo *head){
-    Pezzo *current;
-    for(current = head; current != NULL; current = current->next)
-        printf("Pezzo ID: %d\n", current->id_pezzo);
+void setUp(void) {}
+void tearDown(void) {}
 
-    printf("\n");
+void test_buffer_init(){
+    buffer *buf1 = initialize(5);
+    buffer *buf2 = initialize(6);
+    TEST_ASSERT_NOT_NULL(buf1);
+    TEST_ASSERT_NOT_NULL(buf2);
+    TEST_ASSERT_EQUAL_INT(5, buf1->array_size);
+    TEST_ASSERT_EQUAL_INT(6, buf2->array_size);
+    terminate(buf1);
+    terminate(buf2);
 }
 
-void main(){
-    Pezzo *head = NULL;
+void test_buffer_new_item(){
+    buffer *buf = initialize(3);
+    pezzo *p1 = malloc(sizeof(pezzo));
+    pezzo *p2 = malloc(sizeof(pezzo));
+    pezzo *p3 = malloc(sizeof(pezzo));
+    pezzo *p4 = malloc(sizeof(pezzo));
 
-    Pezzo **buffer = initialize();
+    new_item(p1, buf);
+    new_item(p2, buf);
+    new_item(p3, buf);
+    TEST_ASSERT_TRUE(is_full(buf));
 
-    int i = 0;
-    while(!is_full(buffer)){
-        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
+    new_item(p4, buf); // should not add p4 since buffer is full
+    TEST_ASSERT_EQUAL_PTR(p1, buf->array[0]);
+    TEST_ASSERT_EQUAL_PTR(p2, buf->array[1]);
+    TEST_ASSERT_EQUAL_PTR(p3, buf->array[2]);
 
-        if(nuovo_pezzo == NULL){
-            printf("Errore: memoria non allocata correttamente in main()\n");
-            exit(EXIT_FAILURE);
-        }
+    terminate(buf);
+    free(p1);
+    free(p2);
+    free(p3);
+    free(p4);
+}
 
-        nuovo_pezzo->id_pezzo = i;
-        nuovo_pezzo->next = head;
-        head = nuovo_pezzo;
+void test_buffer_take_item(){
+    buffer *buf = initialize(3);
+    pezzo *p1 = malloc(sizeof(pezzo));
+    pezzo *p2 = malloc(sizeof(pezzo));
+    pezzo *p3 = malloc(sizeof(pezzo));
 
-        i++;
-        new_item(nuovo_pezzo, buffer);
-    }
+    new_item(p1, buf);
+    new_item(p2, buf);
+    new_item(p3, buf);
 
-    Pezzo *output = NULL;
+    pezzo *taken1 = take_item(buf);
+    TEST_ASSERT_EQUAL_PTR(p1, taken1);
+    TEST_ASSERT_EQUAL_PTR(p2, buf->array[0]);
+    TEST_ASSERT_EQUAL_PTR(p3, buf->array[1]);
+    TEST_ASSERT_NULL(buf->array[2]);
 
-    while(!is_empty(buffer)){
-        Pezzo *nuovo_pezzo = malloc(sizeof(Pezzo));
+    pezzo *taken2 = take_item(buf);
+    TEST_ASSERT_EQUAL_PTR(p2, taken2);
+    TEST_ASSERT_EQUAL_PTR(p3, buf->array[0]);
+    TEST_ASSERT_NULL(buf->array[1]);
+    TEST_ASSERT_NULL(buf->array[2]);
 
-        if(nuovo_pezzo == NULL){
-            printf("Errore: memoria non allocata correttamente in main()\n");
-            exit(EXIT_FAILURE);
-        }
+    pezzo *taken3 = take_item(buf);
+    TEST_ASSERT_EQUAL_PTR(p3, taken3);
+    TEST_ASSERT_TRUE(is_empty(buf));
 
-        nuovo_pezzo = take_item(buffer);
-        nuovo_pezzo->next = output;
-        output = nuovo_pezzo;
-    }
+    terminate(buf);
+    free(p1);
+    free(p2);   
+    free(p3);
+}
 
+int main(void){
+    UNITY_BEGIN();
 
-    print_list(head);
-    print_list(output);
+    RUN_TEST(test_buffer_init);
+    RUN_TEST(test_buffer_new_item);
+    RUN_TEST(test_buffer_take_item);
 
-    terminate(buffer);
+    return UNITY_END();
 }
