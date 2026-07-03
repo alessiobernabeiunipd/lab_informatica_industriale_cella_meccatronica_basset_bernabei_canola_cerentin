@@ -41,9 +41,23 @@ void test_simulazione_vuota(void){
     TEST_ASSERT_EQUAL_INT(0, cella->metrics.pezzi_completati);
     TEST_ASSERT_EQUAL_INT(0, cella->metrics.pezzi_scartati);
 }
+// verifico che un pezzo venga completato correttamente
+void test_pezzo_completo(void){
+    pezzo *p = new_pezzo(); 
+    p->valori_nom.t_laminazione_nominale = 1;
+    p->valori_nom.t_pressa_nominale = 1;
+    p->valori_nom.t_gom = 1;
+    // dato che gom_evaluate assegna deviazione random, imposto manualmente
+    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    add_pezzo(&cella->list_head, p);
+    controller(cella);
+    TEST_ASSERT_EQUAL_INT(1, cella->metrics.pezzi_completati);
+    TEST_ASSERT_EQUAL_INT(0, cella->metrics.pezzi_scartati);
+}
 
 int main (void){
     UNITY_BEGIN();
     RUN_TEST(test_simulazione_vuota);
+    RUN_TEST(test_pezzo_completo);
     UNITY_END();
 }
