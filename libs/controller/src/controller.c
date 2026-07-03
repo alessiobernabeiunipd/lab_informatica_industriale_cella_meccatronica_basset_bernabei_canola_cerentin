@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "controller.h"
 #include "logger.h"
 #include "metrics.h"
@@ -137,6 +138,7 @@ void controller(cella_meccatronica *c){
 
     //incremento il conteggio dei tick che tengono traccia dello scorrere del tempo
     c->tick_corrente++;
+    printf("\n");
     }
 
     metrics_finalize();
