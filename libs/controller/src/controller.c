@@ -21,10 +21,10 @@ static void unload_all(cella_meccatronica *c){
     if(is_full(c->buf_gom)==0){
         pezzo *ppres = pressa_unload(c->pressa, c->tick_corrente);
         if(ppres != NULL){
-        // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
-        log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla pressa", ppres->id_pezzo);
-        new_item(ppres, c->buf_gom);
-        log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer GOM", ppres->id_pezzo);
+            // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
+            log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla pressa", ppres->id_pezzo);
+            new_item(ppres, c->buf_gom);
+            log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer GOM", ppres->id_pezzo);
         }
     } else {
         record_block();
@@ -34,10 +34,10 @@ static void unload_all(cella_meccatronica *c){
     if(is_full(c->buf_pressa)==0){
         pezzo *plam = laminazione_unload(c->laminazione, c->tick_corrente);
         if(plam != NULL){
-        // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
-        log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla laminazione", plam->id_pezzo);
-        new_item(plam, c->buf_pressa);
-        log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer pressa", plam->id_pezzo);
+            // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
+            log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla laminazione", plam->id_pezzo);
+            new_item(plam, c->buf_pressa);
+            log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer pressa", plam->id_pezzo);
         }
     } else {
         record_block();
@@ -47,10 +47,10 @@ static void unload_all(cella_meccatronica *c){
     if(is_full(c->buf_lam)==0){
         pezzo *pagv = agv_unload(c->agv);
         if(pagv != NULL){
-        // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
-        log_info_f(c->tick_corrente, "Pezzo %d scaricato dall'AGV", pagv->id_pezzo);
-        new_item(pagv, c->buf_lam);
-        log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer laminazione", pagv->id_pezzo);
+            // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
+            log_info_f(c->tick_corrente, "Pezzo %d scaricato dall'AGV", pagv->id_pezzo);
+            new_item(pagv, c->buf_lam);
+            log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer laminazione", pagv->id_pezzo);
         }
     } else {
         record_block();
@@ -80,22 +80,25 @@ static void load_all(cella_meccatronica *c){
     if(laminazione_is_free(c->laminazione) && !is_empty(c->buf_lam)){
         pezzo *plam = take_item(c->buf_lam);
         if(plam != NULL){
-        laminazione_load(c->laminazione, plam, c->tick_corrente);
-        log_info_f(c->tick_corrente, "Pezzo %d caricato sulla laminazione", plam->id_pezzo);
+            laminazione_load(c->laminazione, plam, c->tick_corrente);
+            log_info_f(c->tick_corrente, "Pezzo %d caricato sulla laminazione", plam->id_pezzo);
         }
     }
      
     //uso un case switch per selezionare politica di ctrl
+    pezzo *pagv = NULL;
     if(strcmp(c->param.politica_controllo, "fcfs") == 0){
-        // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
-        pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
-        if(pagv != NULL && agv_is_free(c->agv)){
-        agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
-        log_info_f(c->tick_corrente, "Poltica di controllo FCFS: pezzo %d caricato sull'AGV per trasporto", pagv->id_pezzo);
-        }
+        // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al agv di prendere lo stampo
+        pagv = first_pezzo_with_status(c->list_head, CREATED);
     }
-    //else if(strcmp(c->param.politica_controllo,"priorità"))
-
+    else if(strcmp(c->param.politica_controllo,"priorita") == 0){
+        // trovo il primo pezzo tra quelli con  priorità maggiore che non ha ancora iniziato lavorazione e dico al agv di prendere lo stampo
+        pagv = high_priority(c->list_head, CREATED);
+    }
+    if(pagv != NULL && agv_is_free(c->agv)){
+            agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
+            log_info_f(c->tick_corrente, "AGV incaricato per il trasporto del pezzo %d", pagv->id_pezzo);
+        }
     //log_info_f(c->tick_corrente, "Politica di controllo con priorità: pezzo %d caricato sull'AGV per trasporto", pagv->id_pezzo);
     
 } 
@@ -125,20 +128,21 @@ void controller(cella_meccatronica *c){
     }
     metrics_init(total_pieces);
 
-    log_info_f(c->tick_corrente, "Avvio simulazione: durata massima %d tick", c->param.durata_simulazione_max);
-    //inizializzo temppo per agv
-    c->param.tempo_agv = 2;
+    log_info_f(c->tick_corrente, "Avvio simulazione con politica %s: durata massima %d tick", c->param.politica_controllo , c->param.durata_simulazione_max);
+
+    //inizializzo tempo per agv
+    c->param.tempo_agv = TEMPO_GOM;
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){
-    //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.
-    //vengono prima effettuati tutti gli unload, poi load, infine tick
-    unload_all(c);
-    load_all(c);
-    tick_all(c);
+        //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.
+        //vengono prima effettuati tutti gli unload, poi load, infine tick
+        unload_all(c);
+        load_all(c);
+        tick_all(c);
 
-    //incremento il conteggio dei tick che tengono traccia dello scorrere del tempo
-    c->tick_corrente++;
-    printf("\n");
+        //incremento il conteggio dei tick che tengono traccia dello scorrere del tempo
+        c->tick_corrente++;
+        printf("\n");
     }
 
     metrics_finalize();
