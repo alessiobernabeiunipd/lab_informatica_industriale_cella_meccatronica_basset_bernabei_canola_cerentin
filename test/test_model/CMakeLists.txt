@@ -9,3 +9,5 @@ target_link_libraries( model_lib_test
     commons
     Unity
 ) 
+
+add_test(model_test model_lib_test)
