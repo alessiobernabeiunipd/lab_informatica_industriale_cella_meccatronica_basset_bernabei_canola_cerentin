@@ -4,6 +4,8 @@
 #include "controller.h"
 #include "logger.h"
 #include "parsing.h"
+#include "metrics.h"
+#include "report.h"
 
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
@@ -62,6 +64,7 @@ int main(void) {
      * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
      *   durata massima della simulazione, temperatura iniziale, ecc.).
      */
+    metrics_init(num_ordini); // Inizializza le metriche con il numero di pezzi previsto dagli ordini
     cella_meccatronica *cella = init_cella(params);
     if (cella == NULL) {
         log_error(0, "Errore: inizializzazione della cella fallita.");
@@ -185,15 +188,26 @@ int main(void) {
 
     /*
      * FASE 5: GENERAZIONE DEL REPORT FINALE E DELLE STATISTICHE
-     * 
+     *
      * - Al termine del ciclo di simulazione, calcolare le statistiche finali sul lavoro svolto:
      *     - Numero totale di pezzi prodotti e di pezzi scartati.
      *     - Lead time medio dei pezzi completati.
      *     - Rispetto delle deadline degli ordini.
      * - Stampare a schermo o scrivere su file un report riassuntivo pulito e strutturato.
      */
-    // TODO: implementare Fase 5
+    metrics_finalize();
+    const metriche_t *m_finali = metrics_get();
 
+    // stampa a video il report
+    report_print("FCFS", m_finali);
+
+    // scrive il report su file
+    if (report_write("report.txt", "FCFS", m_finali) != 0) {
+        log_error(cella->tick_corrente, "Errore nella scrittura del report su file.");
+    }
+    //if (csv_write("report.csv", "FCFS", m_finali) != 0){
+    //    log_error(cella->tick_corrente, "Errore nella scrittura del report CSV su file");
+    //}
 
     /*
      * FASE 6: RILASCIO DELLE RISORSE (CLEANUP)
