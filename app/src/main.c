@@ -3,12 +3,12 @@
 
 #include "controller.h"
 #include "logger.h"
+#include "parsing.h"
 
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
     
-    log_info(10, "ciao susino");
-    /*
+      /*
      * FASE 1: PARSING E CARICAMENTO DELLE CONFIGURAZIONI
      * 
      * - Caricare i parametri di simulazione (es. da "input/simulation_parameters.csv" o ".txt").
@@ -19,6 +19,38 @@ int main(void) {
      * - Nota: Utilizzare esclusivamente le funzioni fornite dalla libreria di parsing per
      *   mantenere il main pulito.
      */
+    parametri_simulazione params;
+    int param_res = parse_parametri("input/simulation_parameters.csv", &params);
+    if (param_res != 0) {
+        param_res = parse_parametri("input/simulation_parameters.txt", &params);
+    }
+    if (param_res != 0) {
+        log_error(0, "Errore: impossibile caricare i parametri di simulazione.");
+        logger_close();
+        return 1;
+    }
+
+    catalogo_entry *catalogo = NULL;
+    int num_cat = parse_catalogo("input/catalogo.csv", &catalogo);
+    if (num_cat <= 0) {
+        log_error(0, "Errore: impossibile caricare il catalogo o catalogo vuoto.");
+        logger_close();
+        return 1;
+    }
+
+    ordine_entry *ordini = NULL;
+    int num_ordini = parse_ordini("input/ordini.csv", &ordini);
+    if (num_ordini <= 0) {
+        log_error(0, "Errore: impossibile caricare gli ordini o nessun ordine presente.");
+        free(catalogo);
+        logger_close();
+        return 1;
+    }
+
+    log_info(0, "FASE 1 Completata: Configurazione Caricata");
+    log_info(0, "  - Parametri di simulazione pronti.");
+    log_info_f(0, "  - %d elementi presenti nel catalogo.", num_cat);
+    log_info_f(0, "  - %d ordini di produzione caricati.", num_ordini);
 
 
     /*
@@ -30,6 +62,19 @@ int main(void) {
      * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
      *   durata massima della simulazione, temperatura iniziale, ecc.).
      */
+    cella_meccatronica *cella = init_cella(params);
+    if (cella == NULL) {
+        log_error(0, "Errore: inizializzazione della cella fallita.");
+        free(catalogo);
+        free(ordini);
+        logger_close();
+        return 1;
+    }
+
+    log_info(0, "FASE 2 Completata: Cella e Stazioni Inizializzate");
+    log_info(0, "  - Stato delle stazioni impostato a IDLE.");
+    log_info_f(0, "  - Temperatura iniziale GOM: %.2f °C", cella->gom->t_GOM);
+
 
     /*
      * FASE 3: GENERAZIONE DEI PEZZI DAGLI ORDINI
@@ -40,6 +85,86 @@ int main(void) {
      *   (tempo di laminazione, ciclo termico, deviazione max, area stampo, ecc.).
      * - Concatenare tutti i pezzi in una lista collegata globale (memorizzata nella cella).
      */
+    int id_pezzo_counter = 1;
+    for (int i = 0; i < num_ordini; i++) {
+        // Cerca la corrispondenza del tipo di pezzo nel catalogo
+        catalogo_entry *cat_ref = NULL;
+        for (int j = 0; j < num_cat; j++) {
+            if (catalogo[j].tipo == ordini[i].tipo) {
+                cat_ref = &catalogo[j];
+                break;
+            }
+        }
+
+        if (cat_ref == NULL) {
+            log_warning_f(0, "Warning: Tipo di pezzo '%c' per l'ordine %d non trovato nel catalogo. Salto.", 
+                          ordini[i].tipo, ordini[i].id);
+            continue;
+        }
+
+        // Genera Q pezzi per questo ordine
+        for (int q = 0; q < ordini[i].quantita; q++) {
+            pezzo *p = new_pezzo();
+            if (p == NULL) {
+                log_error(0, "Errore: allocazione di memoria per un pezzo fallita.");
+                // Deallochiamo tutta la lista dei pezzi finora creata per evitare leak
+                pezzo *curr = cella->list_head;
+                while (curr != NULL) {
+                    pezzo *next = curr->next;
+                    free(curr);
+                    curr = next;
+                }
+                free(catalogo);
+                free(ordini);
+                // Libera i buffer e la cella
+                terminate(cella->buf_lam);
+                terminate(cella->buf_pressa);
+                terminate(cella->buf_gom);
+                if (cella->laminazione) free(cella->laminazione);
+                if (cella->pressa) free(cella->pressa);
+                if (cella->gom) free(cella->gom);
+                if (cella->agv) free(cella->agv);
+                free(cella);
+                logger_close();
+                return 1;
+            }
+
+            p->id_pezzo = id_pezzo_counter++;
+            p->ID_ordine = ordini[i].id;
+            p->priorità = ordini[i].priorita;
+            p->deadline_ticks = ordini[i].tempo_completamento_massimo;
+            
+            // Popoliamo i valori nominali del pezzo dal catalogo
+            p->valori_nom.t_laminazione_nominale = cat_ref->tempo_laminazione;
+            p->valori_nom.t_pressa_nominale = cat_ref->ciclo_termico;
+            p->valori_nom.t_gom = 10; // Valore di default nominale per il GOM
+            p->valori_nom.deviazione_max_gom = (int)(cat_ref->deviazione_max * 100);
+
+            p->stato = CREATED;
+
+            // Aggiungiamo il pezzo in coda alla lista della cella
+            add_pezzo(&(cella->list_head), p);
+        }
+    }
+
+    log_info(0, "FASE 3 Completata: Generazione Pezzi Svolta");
+    log_info_f(0, "  - Generati in totale %d pezzi dagli ordini.", id_pezzo_counter - 1);
+
+    log_info(0, "=== ELENCO DEI PEZZI DA PRODURRE ===");
+    pezzo *curr_print = cella->list_head;
+    while (curr_print != NULL) {
+        log_info_f(0, "  Pezzo ID: %02d | Ordine ID: %d | Priorita: %d | Deadline: %4d tick | Lam Nom: %2d tick | Pres Nom: %2d tick | GOM Nom: %2d tick | Max Dev GOM: %.2f", 
+                   curr_print->id_pezzo, 
+                   curr_print->ID_ordine, 
+                   curr_print->priorità, 
+                   curr_print->deadline_ticks, 
+                   curr_print->valori_nom.t_laminazione_nominale, 
+                   curr_print->valori_nom.t_pressa_nominale, 
+                   curr_print->valori_nom.t_gom, 
+                   curr_print->valori_nom.deviazione_max_gom / 100.0f);
+        curr_print = curr_print->next;
+    }
+    log_info(0, "====================================");
 
 
     /*
@@ -53,6 +178,9 @@ int main(void) {
      *        e lo spostamento dei pezzi tra i buffer.
      *     2. (Opzionale) Stampare o loggare lo stato corrente della cella a fini di debug/simulazione.
      */
+    log_info(0, "FASE 4: Avvio del ciclo di simulazione...");
+    controller(cella);
+    log_info_f(cella->tick_corrente - 1, "FASE 4 Completata: Ciclo di simulazione terminato.");
 
 
     /*
@@ -64,6 +192,7 @@ int main(void) {
      *     - Rispetto delle deadline degli ordini.
      * - Stampare a schermo o scrivere su file un report riassuntivo pulito e strutturato.
      */
+    // TODO: implementare Fase 5
 
 
     /*
@@ -76,6 +205,32 @@ int main(void) {
      *     - Eventuali altre strutture allocate dinamicamente.
      * - Terminare l'esecuzione restituendo 0 in caso di successo.
      */
+    // Rilascio memoria config
+    free(catalogo);
+    free(ordini);
 
+    // Rilascio memoria pezzi
+    pezzo *p_curr = cella->list_head;
+    while (p_curr != NULL) {
+        pezzo *p_next = p_curr->next;
+        free(p_curr);
+        p_curr = p_next;
+    }
+
+    // Rilascio memoria cella e stazioni
+    if (cella->laminazione) free(cella->laminazione);
+    if (cella->pressa) free(cella->pressa);
+    if (cella->gom) free(cella->gom);
+    if (cella->agv) free(cella->agv);
+    
+    // Libera i buffer della cella
+    if (cella->buf_lam) terminate(cella->buf_lam);
+    if (cella->buf_pressa) terminate(cella->buf_pressa);
+    if (cella->buf_gom) terminate(cella->buf_gom);
+    
+    free(cella);
+
+    log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
+    logger_close();
     return 0;
 }
