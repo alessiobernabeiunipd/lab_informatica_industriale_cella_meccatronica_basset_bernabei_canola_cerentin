@@ -24,6 +24,11 @@ add_subdirectory(libs/controller)
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)
 elseif(TARGET_GROUP STREQUAL test)
+    # opzioni passate a Valgrind da "ctest -T memcheck" e dal target "memcheck".
+    # Vanno impostate PRIMA di include(CTest). --error-exitcode=1 fa fallire il run
+    # se emergono errori di memoria o leak (definite/possible).
+    set(MEMORYCHECK_COMMAND_OPTIONS
+        "--leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1")
     include(CTest)
     add_subdirectory(external/Unity)
     add_subdirectory(test/test_buffer)
@@ -32,6 +37,13 @@ elseif(TARGET_GROUP STREQUAL test)
     add_subdirectory(test/test_io)
     add_subdirectory(test/test_stats)
     add_subdirectory(test/test_controller)
+
+    # target di comodita': "cmake --build build --target memcheck" (o "make memcheck")
+    # lancia TUTTI i test sotto Valgrind in un colpo solo.
+    add_custom_target(memcheck
+        COMMAND ${CMAKE_CTEST_COMMAND} -T memcheck --output-on-failure
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Esecuzione di tutti i test sotto Valgrind (memcheck)")
 else()
     message(FATAL_ERROR "Given TARGET_GROUP unknown")
 endif()
