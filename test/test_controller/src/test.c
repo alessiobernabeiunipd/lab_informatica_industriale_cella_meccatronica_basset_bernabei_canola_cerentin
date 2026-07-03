@@ -96,11 +96,31 @@ void test_priorita(void){
     TEST_ASSERT_TRUE(p2->ts.ingresso < p1->ts.ingresso);
     TEST_ASSERT_EQUAL_INT(3, cella->metrics.pezzi_completati);
 }
+// test buffer pieno => il controller prima di scaricare, controlla se c'è spazio nel buffer
+// blocco GOM così buffer a monte si riempie e pressa non scarica
+void test_buffer_pieno(void){
+    for (int i = 0; i < 10; i++){
+        pezzo *p = new_pezzo();
+        p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+        p->valori_nom.t_gom = 1000; // gom lento
+        p->valori_nom.t_laminazione_nominale = 1; // monte veloce
+        p->valori_nom.t_pressa_nominale = 1; // monte veloce
+        add_pezzo(&cella->list_head, p);
+    }
+    controller (cella);
+    TEST_ASSERT_TRUE(metrics_get()->blocchi_buffer_pieno > 0);
+    // sanità: il blocco non deve perdere pezzi, sono tutti ancora in lista
+    int conteggio = 0;
+    for (pezzo *curr = cella->list_head; curr != NULL; curr = curr->next)
+        conteggio++;
+    TEST_ASSERT_EQUAL_INT(10, conteggio);
+}
 int main (void){
     UNITY_BEGIN();
     RUN_TEST(test_simulazione_vuota);
     RUN_TEST(test_pezzo_completo);
     RUN_TEST(test_fcfs);
     RUN_TEST(test_priorita);
+    RUN_TEST(test_buffer_pieno);
     UNITY_END();
 }
