@@ -54,7 +54,7 @@ pezzo *high_priority(pezzo *list_head, piece_status status){
     pezzo *highest_priority = NULL;
     while (list_head != NULL) {
         if (list_head->stato == status) {
-            if (highest_priority == NULL || list_head->priorità > highest_priority->priorità) {
+            if (highest_priority == NULL || list_head->priorità < highest_priority->priorità) {
                 highest_priority = list_head;
             }
         }

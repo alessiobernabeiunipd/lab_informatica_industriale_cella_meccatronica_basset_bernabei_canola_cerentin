@@ -4,7 +4,7 @@ capacita_buffer_laminazione=5
 capacita_buffer_pressa=5
 capacita_buffer_gom=3
 # Politica di controllo: "fcfs" per Scenario 1, "priorita" per Scenario 2
-politica_controllo=fcfs
+politica_controllo=priorita
 temperatura_ambiente_iniziale=24.0
 temperatura_incremento_minuto=0.015  # 0.9°C all'ora, supererà i 27°C dopo 200 minuti (3h 20m)
 durata_simulazione_max=100
