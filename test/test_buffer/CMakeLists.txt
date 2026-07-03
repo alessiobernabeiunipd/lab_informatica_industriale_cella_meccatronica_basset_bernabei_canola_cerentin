@@ -5,5 +5,6 @@ target_link_libraries( buffer_lib_test
     PRIVATE  
     model 
     commons
-    Unity
+    io
+    unity
 ) 

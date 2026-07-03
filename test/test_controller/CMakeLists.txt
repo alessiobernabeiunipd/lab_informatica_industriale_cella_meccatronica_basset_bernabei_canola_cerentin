@@ -8,7 +8,7 @@ target_link_libraries( controller_test
     controller
     model 
     commons 
-    Unity
+    unity
 ) 
 
 add_test(controller_test test_lib_controller)
