@@ -24,6 +24,9 @@ add_subdirectory(libs/controller)
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)
 elseif(TARGET_GROUP STREQUAL test)
+    # Individua valgrind e mettilo in cache, cosi' il comando di memory-check non
+    # si azzera nelle riconfigurazioni successive (causa del "valgrind: command not found").
+    find_program(MEMORYCHECK_COMMAND NAMES valgrind)
     # opzioni passate a Valgrind da "ctest -T memcheck" e dal target "memcheck".
     # Vanno impostate PRIMA di include(CTest). --error-exitcode=1 fa fallire il run
     # se emergono errori di memoria o leak (definite/possible).
@@ -39,11 +42,12 @@ elseif(TARGET_GROUP STREQUAL test)
     add_subdirectory(test/test_controller)
 
     # target di comodita': "cmake --build build --target memcheck" (o "make memcheck")
-    # lancia TUTTI i test sotto Valgrind in un colpo solo.
+    # compila prima TUTTI i test, poi li esegue sotto Valgrind in un colpo solo.
     add_custom_target(memcheck
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
         COMMAND ${CMAKE_CTEST_COMMAND} -T memcheck --output-on-failure
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Esecuzione di tutti i test sotto Valgrind (memcheck)")
+        COMMENT "Compila i test e li esegue tutti sotto Valgrind (memcheck)")
 else()
     message(FATAL_ERROR "Given TARGET_GROUP unknown")
 endif()
