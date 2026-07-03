@@ -1,6 +1,15 @@
 #include "cella.h"
 #include "unity.h"
 
+static void free_lista_pezzi(pezzo *head){
+    pezzo *current = head;
+    while(current != NULL){
+        pezzo *next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
 void setUp(void) {}
 void tearDown(void) {}
 
@@ -11,6 +20,7 @@ void test_modify_status(){
     TEST_ASSERT_EQUAL_INT(0, a->ts.ingresso);
     modify_status(a, IN_PRESS);
     TEST_ASSERT_EQUAL_STRING("IN_PRESS", status_pezzo_to_string(a->stato));
+    free(a);
 }
 
 void test_copy_pezzo(){
@@ -24,6 +34,8 @@ void test_copy_pezzo(){
     TEST_ASSERT_EQUAL_INT(3, copy->id_pezzo);
     TEST_ASSERT_EQUAL_INT(100, copy->ts.ingresso);
     TEST_ASSERT_NULL(copy->next);
+    free(a);
+    free(copy);
 }
 
 void test_list(){
@@ -43,6 +55,7 @@ void test_list(){
     TEST_ASSERT_EQUAL_INT(b,a->next);
     TEST_ASSERT_EQUAL_INT(c,b->next);
     TEST_ASSERT_EQUAL_INT(a,list_head);
+    free_lista_pezzi(list_head);
 }
 
 void test_first(){
@@ -64,6 +77,7 @@ void test_first(){
     pezzo *k = first_pezzo_with_status(list_head, SCRAP);
     TEST_ASSERT_EQUAL_INT(c, p);
     TEST_ASSERT_NULL(k);
+    free_lista_pezzi(list_head);
 }
 
 void test_add(){
@@ -96,6 +110,9 @@ void test_add(){
     add_pezzo_next_in_production(&list_head, e);
     TEST_ASSERT_EQUAL_INT(4, c->next->id_pezzo);
     TEST_ASSERT_EQUAL_STRING("CREATED", status_pezzo_to_string(c->next->stato));
+    free_lista_pezzi(list_head); // libera a,b,c e le copie di d,e, ma non gli originali
+    free(d);
+    free(e);
 }
 
 void test_high_priority(){
@@ -117,12 +134,16 @@ void test_high_priority(){
         add_pezzo(&list_head, p);
     }
 
+    // Convenzione: numero di priorità piu' basso = priorità maggiore, quindi high_priority
+    // restituisce il MINIMO. Tra i pari (IN_LAMINATION) il primo con priorità 0 e' i=2;
+    // tra i dispari (WAITING_INPUT) il primo con priorità 0 e' i=1.
     pezzo *p = high_priority(list_head, IN_LAMINATION);
-    TEST_ASSERT_EQUAL_INT(1, p->priorità);
-    TEST_ASSERT_EQUAL_INT(0, p->id_pezzo);
+    TEST_ASSERT_EQUAL_INT(0, p->priorità);
+    TEST_ASSERT_EQUAL_INT(2, p->id_pezzo);
     pezzo *q = high_priority(list_head, WAITING_INPUT);
-    TEST_ASSERT_EQUAL_INT(1, q->priorità);
-    TEST_ASSERT_EQUAL_INT(3, q->id_pezzo);
+    TEST_ASSERT_EQUAL_INT(0, q->priorità);
+    TEST_ASSERT_EQUAL_INT(1, q->id_pezzo);
+    free_lista_pezzi(list_head);
 }
 
 void test_init_agv(){       //testa le funzioni di inizializzazione dell'AGV
@@ -135,6 +156,7 @@ void test_init_agv(){       //testa le funzioni di inizializzazione dell'AGV
     agv->stato = BUSY;
     int j = agv_is_free(agv);
     TEST_ASSERT_EQUAL_INT(0, j);
+    free(agv);
 }
 
 void test_get_mold(){
@@ -150,6 +172,8 @@ void test_get_mold(){
     TEST_ASSERT_EQUAL_INT(p, agv->pezzo_in_lavorazione);
     TEST_ASSERT_EQUAL_INT(20, agv->tick_lavorazione_rimasti);
     TEST_ASSERT_EQUAL_INT(9, p->ts.ingresso);
+    free(agv);
+    free(p);
 
 }
 
@@ -160,6 +184,8 @@ void test_tick(){
     agv_get_mold(agv, p, 10, 9);
     agv_tick(agv);
     TEST_ASSERT_EQUAL_INT(19, agv->tick_lavorazione_rimasti);
+    free(agv);
+    free(p);
 }
 
 void test_agv_unload(){
@@ -173,6 +199,8 @@ void test_agv_unload(){
     TEST_ASSERT_EQUAL_INT(p, r);
     TEST_ASSERT_NULL( agv->pezzo_in_lavorazione);
     TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(agv->stato));
+    free(agv);
+    free(p);
 }
 
 void test_init_gom(){       //testa le funzioni di inizializzazione dell'AGV
@@ -186,6 +214,7 @@ void test_init_gom(){       //testa le funzioni di inizializzazione dell'AGV
     gom->stato = BUSY;
     int j = gom_is_free(gom);
     TEST_ASSERT_EQUAL_INT(0, j);
+    free(gom);
 }
 
 void test_gom_tick(){
@@ -227,6 +256,10 @@ void test_gom_tick(){
     gom3->tick_lavorazione_rimasti = 0;
     gom_tick(gom, param);
     TEST_ASSERT_EQUAL_STRING("BUSY", status_station_to_string(gom->stato));
+    free(gom);
+    free(gom2);
+    free(gom3);
+    free(p);
 }
 
 void test_gom_unload_evaluate_1(){      // valuto condizione di scarico possibile
@@ -246,6 +279,8 @@ void test_gom_unload_evaluate_1(){      // valuto condizione di scarico possibil
     TEST_ASSERT_EQUAL_INT(99, p->ts.uscita);
     TEST_ASSERT_EQUAL_INT(99, p->lead_time);
     TEST_ASSERT_EQUAL_STRING("OK", status_pezzo_to_string(OK));
+    free(gom);
+    free(p);
 }
 
 void test_gom_unload_evaluate_2(){      //caso con scarico possibile, verifico che l'unload avvenga
@@ -263,6 +298,8 @@ void test_gom_unload_evaluate_2(){      //caso con scarico possibile, verifico c
     TEST_ASSERT_EQUAL_INT(0, gom->tick_lavorazione_rimasti);
     TEST_ASSERT_EQUAL_INT(10, gom->tick_cooling_rimasti);
     gom_tick(gom, param);
+    free(gom);
+    free(p);
 }
 
 void test_gom_unload_evaluate_3(){          //caso in cui non avviene alcuno scarico, verifico che non avvenga nulla
@@ -281,6 +318,8 @@ void test_gom_unload_evaluate_3(){          //caso in cui non avviene alcuno sca
     TEST_ASSERT_EQUAL_INT(10, gom->tick_cooling_rimasti);
     TEST_ASSERT_NULL(r);
     TEST_ASSERT_EQUAL_STRING("IN_GOM", status_pezzo_to_string(p->stato));
+    free(gom);
+    free(p);
 }
 
 void test_quality_control_OK(){
@@ -299,6 +338,9 @@ void test_quality_control_OK(){
     int ok = 0;
     quality_control(&ok, &scrap, &list_head, p);
     TEST_ASSERT_EQUAL_INT(1, ok);
+    free(gom);
+    free(p);
+    free_lista_pezzi(list_head);
 }
 
 void test_quality_control_SCRAP(){
@@ -319,6 +361,9 @@ void test_quality_control_SCRAP(){
     quality_control(&ok, &scrap, &list_head, p);
     TEST_ASSERT_EQUAL_INT(1, scrap);
     TEST_ASSERT_EQUAL_INT(855, list_head->id_pezzo);
+    free(gom);
+    free(p);
+    free_lista_pezzi(list_head);
 }
 
 int main (void)
