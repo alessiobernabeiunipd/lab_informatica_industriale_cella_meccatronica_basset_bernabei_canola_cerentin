@@ -7,7 +7,7 @@ static void unload_all(cella_meccatronica *c){
     //scarico il pezzo dal gom e valuto la sua conformità alle specifiche
     pezzo *pgom = gom_unload_and_evaluate(c->gom, c->tick_corrente);
     if(pgom != NULL){
-        quality_control(&(c->pezzi_completati), &(c->pezzi_scartati), (&c->list_head), pgom);
+        quality_control(&(c->metrics.pezzi_completati), &(c->metrics.pezzi_scartati), (&c->list_head), pgom);
         if(pgom->stato == OK){
             record_piece_done(pgom);
             log_info_f(c->tick_corrente, "Pezzo %d scaricato dal GOM e completato (lead time %d tick)", pgom->id_pezzo, pgom->lead_time);
@@ -89,9 +89,7 @@ static void load_all(cella_meccatronica *c){
     if(strcmp(c->param.politica_controllo, "fcfs") == 0){
         // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
         pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
-        if(pagv != NULL){
-        //non serve una condizione di controllo se agv è libero, è integrata in agv_get_mold.
-        //agv non parte se non è libero
+        if(pagv != NULL && agv_is_free(c->agv)){
         agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
         log_info_f(c->tick_corrente, "Poltica di controllo FCFS: pezzo %d caricato sull'AGV per trasporto", pagv->id_pezzo);
         }
@@ -128,6 +126,8 @@ void controller(cella_meccatronica *c){
     metrics_init(total_pieces);
 
     log_info_f(c->tick_corrente, "Avvio simulazione: durata massima %d tick", c->param.durata_simulazione_max);
+    //inizializzo temppo per agv
+    c->param.tempo_agv = 2;
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){
     //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.
@@ -144,5 +144,5 @@ void controller(cella_meccatronica *c){
     metrics_finalize();
 
     log_info_f(c->tick_corrente, "Simulazione terminata: %d pezzi completati, %d pezzi scartati",
-               c->pezzi_completati, c->pezzi_scartati);
+               c->metrics.pezzi_completati, c->metrics.pezzi_scartati);
 }

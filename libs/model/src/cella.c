@@ -35,8 +35,8 @@ cella_meccatronica *init_cella(parametri_simulazione param){
     c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
 
     c->tick_corrente = 0;
-    c->pezzi_completati = 0;
-    c->pezzi_scartati = 0;
+    c->metrics.pezzi_completati = 0;
+    c->metrics.pezzi_scartati = 0;
 
     c->list_head = NULL;
 
@@ -91,6 +91,7 @@ void agv_get_mold(AGV *agv, pezzo *p, int tick_viaggio, int tick) {
     if(agv_is_free(agv)!=1) return;
     agv->stato = BUSY;
     agv->pezzo_in_lavorazione = p;
+    //agv parte da stazione di ricarica (IDLE) accanto a laminazione, va in magazzino e torna in laminazione
     agv->tick_lavorazione_rimasti = 2*tick_viaggio;
     p->stato = TRAVELING;
 
