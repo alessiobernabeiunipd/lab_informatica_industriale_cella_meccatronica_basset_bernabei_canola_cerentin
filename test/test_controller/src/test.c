@@ -54,10 +54,53 @@ void test_pezzo_completo(void){
     TEST_ASSERT_EQUAL_INT(1, cella->metrics.pezzi_completati);
     TEST_ASSERT_EQUAL_INT(0, cella->metrics.pezzi_scartati);
 }
-
+// verifico che con FCFS l'AGV prenda i pezzi nell'ordine corretto
+void test_fcfs(void){
+    pezzo *p1 = new_pezzo();
+    pezzo *p2 = new_pezzo();
+    pezzo *p3 = new_pezzo();
+    p1->id_pezzo = 1;
+    p2->id_pezzo = 2;
+    p3->id_pezzo = 3;
+    p1->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p2->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p3->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    add_pezzo(&cella->list_head, p1);
+    add_pezzo(&cella->list_head, p2);
+    add_pezzo(&cella->list_head, p3);
+    controller(cella);
+    TEST_ASSERT_TRUE(p1->ts.ingresso < p2->ts.ingresso);
+    TEST_ASSERT_TRUE(p2->ts.ingresso < p3->ts.ingresso);
+    TEST_ASSERT_EQUAL_INT(3, cella->metrics.pezzi_completati);
+}
+// test politica priorità
+void test_priorita(void){
+    pezzo *p1 = new_pezzo();
+    pezzo *p2 = new_pezzo();
+    pezzo *p3 = new_pezzo();
+    p1->id_pezzo = 1;
+    p2->id_pezzo = 2;
+    p3->id_pezzo = 3;
+    p1->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p2->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p3->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p1->priorità = 3;
+    p2->priorità = 2;
+    p3->priorità = 1;
+    strcpy(cella->param.politica_controllo, "priorita");
+    add_pezzo(&cella->list_head, p1);
+    add_pezzo(&cella->list_head, p2);
+    add_pezzo(&cella->list_head, p3);
+    controller(cella);
+    TEST_ASSERT_TRUE(p3->ts.ingresso < p2->ts.ingresso);
+    TEST_ASSERT_TRUE(p2->ts.ingresso < p1->ts.ingresso);
+    TEST_ASSERT_EQUAL_INT(3, cella->metrics.pezzi_completati);
+}
 int main (void){
     UNITY_BEGIN();
     RUN_TEST(test_simulazione_vuota);
     RUN_TEST(test_pezzo_completo);
+    RUN_TEST(test_fcfs);
+    RUN_TEST(test_priorita);
     UNITY_END();
 }
