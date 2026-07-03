@@ -280,7 +280,7 @@ static piece_status gom_evaluate(pezzo *p){
 }
 
 pezzo *gom_unload_and_evaluate(stazione_GOM *gom, int tick) {
-    if ((gom->stato == COOLING || gom->stato == BUSY) && gom->tick_lavorazione_rimasti <= 0) {
+    if ((gom->stato == COOLING || gom->stato == BUSY) && gom->tick_lavorazione_rimasti <= 0 && gom->pezzo_in_lavorazione != NULL) {
         if(gom->stato == BUSY)
             gom->stato = IDLE;
         pezzo *p = gom->pezzo_in_lavorazione;

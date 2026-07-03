@@ -109,11 +109,28 @@ void test_buffer_pieno(void){
     }
     controller (cella);
     TEST_ASSERT_TRUE(metrics_get()->blocchi_buffer_pieno > 0);
-    // sanità: il blocco non deve perdere pezzi, sono tutti ancora in lista
+    //il blocco non deve perdere pezzi, sono tutti ancora in lista
     int conteggio = 0;
     for (pezzo *curr = cella->list_head; curr != NULL; curr = curr->next)
         conteggio++;
     TEST_ASSERT_EQUAL_INT(10, conteggio);
+}
+// test scarto e rilavorazione => genero una catena di scarti fino a fine simulazione
+void test_scarto_rilavorazione(void){
+    pezzo *p = new_pezzo();
+    p->valori_nom.deviazione_max_gom = GOM_DEV_MIN;
+    p->valori_nom.t_laminazione_nominale = 1;
+    p->valori_nom.t_pressa_nominale = 1;
+    p->valori_nom.t_gom = 1;
+    add_pezzo(&cella->list_head, p);
+    controller(cella);
+    TEST_ASSERT_TRUE(cella->metrics.pezzi_scartati > 0);
+    TEST_ASSERT_EQUAL_INT(0, cella->metrics.pezzi_completati);
+    // invariante: partito da 1 pezzo, ogni scarto ha aggiunto esattamente una copia di rilavorazione
+    int conteggio = 0;
+    for (pezzo *curr = cella->list_head; curr != NULL; curr = curr->next)
+        conteggio++;
+    TEST_ASSERT_EQUAL_INT(1 + cella->metrics.pezzi_scartati, conteggio);
 }
 int main (void){
     UNITY_BEGIN();
@@ -122,5 +139,6 @@ int main (void){
     RUN_TEST(test_fcfs);
     RUN_TEST(test_priorita);
     RUN_TEST(test_buffer_pieno);
+    RUN_TEST(test_scarto_rilavorazione);
     UNITY_END();
 }
