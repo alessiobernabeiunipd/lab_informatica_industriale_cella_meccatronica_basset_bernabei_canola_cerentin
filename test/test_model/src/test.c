@@ -98,6 +98,33 @@ void test_add(){
     TEST_ASSERT_EQUAL_STRING("CREATED", status_pezzo_to_string(c->next->stato));
 }
 
+void test_high_priority(){
+    pezzo *list_head = NULL;
+    for(int i=0; i<10; i++){
+        pezzo *p = new_pezzo();
+        reset_pezzo(p);
+        p->id_pezzo = i;
+        if(i%3==0){
+            p->priorità = 1;
+        }else{
+            p->priorità = 0;
+        }
+        if(i%2==0){
+            modify_status(p, IN_LAMINATION);
+        }else{
+            modify_status(p, WAITING_INPUT);
+        }
+        add_pezzo(&list_head, p);
+    }
+
+    pezzo *p = high_priority(list_head, IN_LAMINATION);
+    TEST_ASSERT_EQUAL_INT(1, p->priorità);
+    TEST_ASSERT_EQUAL_INT(0, p->id_pezzo);
+    pezzo *q = high_priority(list_head, WAITING_INPUT);
+    TEST_ASSERT_EQUAL_INT(1, q->priorità);
+    TEST_ASSERT_EQUAL_INT(3, q->id_pezzo);
+}
+
 void test_init_agv(){       //testa le funzioni di inizializzazione dell'AGV
     AGV *agv = init_agv();
     TEST_ASSERT_EQUAL_STRING("IDLE", status_station_to_string(agv->stato));
@@ -303,6 +330,7 @@ int main (void)
     RUN_TEST(test_list);
     RUN_TEST(test_first);
     RUN_TEST(test_add);
+    RUN_TEST(test_high_priority);
 
     RUN_TEST(test_init_agv);
     RUN_TEST(test_get_mold);
