@@ -91,7 +91,7 @@ static void load_all(cella_meccatronica *c){
         pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
         if(pagv != NULL && agv_is_free(c->agv)){
         agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
-        log_info_f(c->tick_corrente, "Poltica di controllo FCFS: pezzo %d caricato sull'AGV per trasporto", pagv->id_pezzo);
+        log_info_f(c->tick_corrente, "AGV incaricato per il trasporto del pezzo %d", pagv->id_pezzo);
         }
     }
     //else if(strcmp(c->param.politica_controllo,"priorità"))
@@ -125,8 +125,9 @@ void controller(cella_meccatronica *c){
     }
     metrics_init(total_pieces);
 
-    log_info_f(c->tick_corrente, "Avvio simulazione: durata massima %d tick", c->param.durata_simulazione_max);
-    //inizializzo temppo per agv
+    log_info_f(c->tick_corrente, "Avvio simulazione con politica %s: durata massima %d tick", c->param.politica_controllo , c->param.durata_simulazione_max);
+
+    //inizializzo tempo per agv
     c->param.tempo_agv = 2;
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){
