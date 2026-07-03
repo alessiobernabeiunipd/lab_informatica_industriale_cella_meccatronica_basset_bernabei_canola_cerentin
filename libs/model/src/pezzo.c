@@ -50,6 +50,19 @@ pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status) {
     return last;
 }
 
+pezzo *high_priority(pezzo *list_head, piece_status status){
+    pezzo *highest_priority = NULL;
+    while (list_head != NULL) {
+        if (list_head->stato == status) {
+            if (highest_priority == NULL || list_head->priorità > highest_priority->priorità) {
+                highest_priority = list_head;
+            }
+        }
+        list_head = list_head->next;
+    }
+    return highest_priority;
+}
+
 pezzo *new_pezzo(){
     pezzo *new = malloc(sizeof(pezzo));
     if(new == NULL) return NULL;

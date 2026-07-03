@@ -20,6 +20,9 @@ pezzo *first_pezzo_with_status(pezzo *list_head, piece_status status);
 //return ptr to last pezzo in the list with a specific status. Returns NULL is no piece has the requested status
 pezzo *last_pezzo_with_status(pezzo *list_head, piece_status status);
 
+/*funzione per la ricerca del pezzo a priorità più alta dato un certo status e ritorna il puntatore al pezzo*/
+pezzo *high_priority(pezzo *list_head, piece_status status);
+
 
 //OPERATIONS ON A SINGLE PEZZO
 
