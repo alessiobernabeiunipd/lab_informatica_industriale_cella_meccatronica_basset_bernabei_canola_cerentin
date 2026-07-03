@@ -3,11 +3,12 @@
 #include "logger.h"
 #include "metrics.h"
 
+
 static void unload_all(cella_meccatronica *c){
     //scarico il pezzo dal gom e valuto la sua conformità alle specifiche
     pezzo *pgom = gom_unload_and_evaluate(c->gom, c->tick_corrente);
     if(pgom != NULL){
-        quality_control(&(c->metrics.pezzi_completati), &(c->metrics.pezzi_scartati), (&c->list_head), pgom);
+        quality_control(&(c->metrics.pezzi_completati), &(c->metrics.pezzi_scartati), &(c->list_head), pgom);
         if(pgom->stato == OK){
             record_piece_done(pgom);
             log_info_f(c->tick_corrente, "Pezzo %d scaricato dal GOM e completato (lead time %d tick)", pgom->id_pezzo, pgom->lead_time);

@@ -235,7 +235,7 @@ void test_gom_unload_evaluate_1(){      // valuto condizione di scarico possibil
     parametri_simulazione param;
     param.temperatura_ambiente_iniziale = 20;
     param.temperatura_incremento_minuto = 2;
-    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
     p->valori_nom.t_gom = 1;
     gom_load(gom, p, 80);
     gom_tick(gom, param);
@@ -289,7 +289,7 @@ void test_quality_control_OK(){
     parametri_simulazione param;
     param.temperatura_ambiente_iniziale = 20;
     param.temperatura_incremento_minuto = 2;
-    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
     gom_load(gom, p, 1);
     gom_tick(gom, param);
     p = gom_unload_and_evaluate(gom, 99);     //genero un pezzo che so essere OK
@@ -308,7 +308,7 @@ void test_quality_control_SCRAP(){
     parametri_simulazione param;
     param.temperatura_ambiente_iniziale = 20;
     param.temperatura_incremento_minuto = 2;
-    p->valori_nom.deviazione_max_gom = GOM_DEV_MIN;
+    p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MIN * 100);
     gom_load(gom, p, 1);
     gom_tick(gom, param);
     p = gom_unload_and_evaluate(gom, 99);     //genero un pezzo che so essere SCRAP
