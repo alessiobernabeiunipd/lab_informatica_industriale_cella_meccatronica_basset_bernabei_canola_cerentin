@@ -8,3 +8,4 @@ target_link_libraries( buffer_lib_test
     io
     unity
 ) 
+add_test(buffer_lib_test buffer_lib_test)

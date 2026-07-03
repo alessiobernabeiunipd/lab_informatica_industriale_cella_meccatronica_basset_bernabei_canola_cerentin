@@ -13,6 +13,10 @@
 //initialize cella with ticks and stats to zero, structs in idle state and head list to NULL
 cella_meccatronica *init_cella(parametri_simulazione param);
 
+//libera tutta la memoria della cella: lista dei pezzi, buffer, stazioni e la struct stessa.
+//Da chiamare a fine simulazione o nel teardown dei test. No-op se c e' NULL.
+void cella_destroy(cella_meccatronica *c);
+
 //initialize buffer in cella, it is necessary to parse cella_meccatronica.param before calling
 int *init_cella_buf(cella_meccatronica *c);
 

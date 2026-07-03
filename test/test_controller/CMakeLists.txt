@@ -3,12 +3,14 @@ project(test_lib_controller
 )
 add_executable(controller_test src/test.c)
 
-target_link_libraries( controller_test 
-    PRIVATE 
+target_link_libraries( controller_test
+    PRIVATE
     controller
-    model 
-    commons 
+    model
+    commons
+    io
+    stats
     unity
-) 
+)
 
-add_test(controller_test test_lib_controller)
+add_test(controller_test controller_test)

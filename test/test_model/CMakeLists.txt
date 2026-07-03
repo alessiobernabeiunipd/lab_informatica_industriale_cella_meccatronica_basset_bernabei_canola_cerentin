@@ -8,3 +8,4 @@ target_link_libraries( model_lib_test
     io
     unity
 ) 
+add_test(model_lib_test model_lib_test)

@@ -35,8 +35,7 @@ cella_meccatronica *init_cella(parametri_simulazione param){
     c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
 
     c->tick_corrente = 0;
-    c->metrics.pezzi_completati = 0;
-    c->metrics.pezzi_scartati = 0;
+    memset(&c->metrics, 0, sizeof(c->metrics));
 
     c->list_head = NULL;
 
@@ -71,6 +70,32 @@ cella_meccatronica *init_cella(parametri_simulazione param){
         return 0;
     }
     return c;
+}
+
+void cella_destroy(cella_meccatronica *c){
+    if (c == NULL) return;
+
+    //tutti i pezzi vivono nella lista concatenata: buffer e stazioni contengono
+    //solo puntatori presi in prestito, quindi libero i pezzi una sola volta qui
+    pezzo *curr = c->list_head;
+    while (curr != NULL){
+        pezzo *next = curr->next;
+        free(curr);
+        curr = next;
+    }
+
+    //terminate libera solo struct+array del buffer, non i pezzi (gia' liberati sopra)
+    if (c->buf_lam != NULL)    terminate(c->buf_lam);
+    if (c->buf_pressa != NULL) terminate(c->buf_pressa);
+    if (c->buf_gom != NULL)    terminate(c->buf_gom);
+
+    //libero le quattro stazioni
+    free(c->agv);
+    free(c->laminazione);
+    free(c->pressa);
+    free(c->gom);
+
+    free(c);
 }
 
 //AGV
