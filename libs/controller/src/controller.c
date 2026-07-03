@@ -85,7 +85,7 @@ static void load_all(cella_meccatronica *c){
     }
      
     //uso un case switch per selezionare politica di ctrl
-    if(strcmp(c->param.politica_controllo, "fcfs")){
+    if(strcmp(c->param.politica_controllo, "fcfs") == 0){
         // trovo il primo pezzo che non ha ancora iniziato lavorazione e dico al gom di prendere lo stampo
         pezzo *pagv = first_pezzo_with_status(c->list_head, CREATED);
         if(pagv != NULL){
@@ -118,6 +118,14 @@ static void tick_all(cella_meccatronica *c){
 }
 
 void controller(cella_meccatronica *c){
+    int total_pieces = 0;
+    pezzo *curr = c->list_head;
+    while (curr != NULL) {
+        total_pieces++;
+        curr = curr->next;
+    }
+    metrics_init(total_pieces);
+
     log_info_f(c->tick_corrente, "Avvio simulazione: durata massima %d tick", c->param.durata_simulazione_max);
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){

@@ -11,7 +11,7 @@
 #define GOM_COOLING_TIME 10
 
 //initialize cella with ticks and stats to zero, structs in idle state and head list to NULL
-cella_meccatronica *init_cella();
+cella_meccatronica *init_cella(parametri_simulazione param);
 
 //initialize buffer in cella, it is necessary to parse cella_meccatronica.param before calling
 int *init_cella_buf(cella_meccatronica *c);

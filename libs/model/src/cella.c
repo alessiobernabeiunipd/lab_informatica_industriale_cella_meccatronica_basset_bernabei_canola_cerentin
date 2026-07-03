@@ -1,6 +1,6 @@
 #include "cella.h"
 
-cella_meccatronica *init_cella(/*parametri_simulazione param*/){
+cella_meccatronica *init_cella(parametri_simulazione param){
     cella_meccatronica *c = malloc(sizeof(cella_meccatronica));
     if (c == NULL) return NULL;
     
@@ -30,17 +30,16 @@ cella_meccatronica *init_cella(/*parametri_simulazione param*/){
         free(c); 
         return NULL;
     }
-    /*
+    
     c->param = param;
     c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
-    c->tempo_agv = c->param.tempo_agv
 
     c->tick_corrente = 0;
     c->pezzi_completati = 0;
     c->pezzi_scartati = 0;
 
     c->list_head = NULL;
-    */
+
     c->buf_lam = initialize(c->param.capacita_buffer_laminazione);
     if (c->buf_lam == NULL) {
         free(c->agv);
