@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "controller.h"
 #include "logger.h"
@@ -10,6 +11,9 @@
 
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
+
+    //inizializzazione del seed randomico
+    srand(time(NULL));
     
       /*
      * FASE 1: PARSING E CARICAMENTO DELLE CONFIGURAZIONI
@@ -89,70 +93,25 @@ int main(void) {
      *   (tempo di laminazione, ciclo termico, deviazione max, area stampo, ecc.).
      * - Concatenare tutti i pezzi in una lista collegata globale (memorizzata nella cella).
      */
-    int id_pezzo_counter = 1;
-    for (int i = 0; i < num_ordini; i++) {
-        // Cerca la corrispondenza del tipo di pezzo nel catalogo
-        catalogo_entry *cat_ref = NULL;
-        for (int j = 0; j < num_cat; j++) {
-            if (catalogo[j].tipo == ordini[i].tipo) {
-                cat_ref = &catalogo[j];
-                break;
-            }
-        }
-
-        if (cat_ref == NULL) {
-            log_warning_f(0, "Warning: Tipo di pezzo '%c' per l'ordine %d non trovato nel catalogo. Salto.", 
-                          ordini[i].tipo, ordini[i].id);
-            continue;
-        }
-
-        // Genera Q pezzi per questo ordine
-        for (int q = 0; q < ordini[i].quantita; q++) {
-            pezzo *p = new_pezzo();
-            if (p == NULL) {
-                log_error(0, "Errore: allocazione di memoria per un pezzo fallita.");
-                // Deallochiamo tutta la lista dei pezzi finora creata per evitare leak
-                pezzo *curr = cella->list_head;
-                while (curr != NULL) {
-                    pezzo *next = curr->next;
-                    free(curr);
-                    curr = next;
-                }
-                free(catalogo);
-                free(ordini);
-                // Libera i buffer e la cella
-                terminate(cella->buf_lam);
-                terminate(cella->buf_pressa);
-                terminate(cella->buf_gom);
-                if (cella->laminazione) free(cella->laminazione);
-                if (cella->pressa) free(cella->pressa);
-                if (cella->gom) free(cella->gom);
-                if (cella->agv) free(cella->agv);
-                free(cella);
-                logger_close();
-                return 1;
-            }
-
-            p->id_pezzo = id_pezzo_counter++;
-            p->ID_ordine = ordini[i].id;
-            p->priorità = ordini[i].priorita;
-            p->deadline_ticks = ordini[i].tempo_completamento_massimo;
-            
-            // Popoliamo i valori nominali del pezzo dal catalogo
-            p->valori_nom.t_laminazione_nominale = cat_ref->tempo_laminazione;
-            p->valori_nom.t_pressa_nominale = cat_ref->ciclo_termico;
-            p->valori_nom.t_gom = 10; // Valore di default nominale per il GOM
-            p->valori_nom.deviazione_max_gom = (int)(cat_ref->deviazione_max * 100);
-
-            p->stato = CREATED;
-
-            // Aggiungiamo il pezzo in coda alla lista della cella
-            add_pezzo(&(cella->list_head), p);
-        }
+    int total_pieces = genera_pezzi_da_ordini(cella, ordini, num_ordini, catalogo, num_cat);
+    if (total_pieces < 0) {
+        free(catalogo);
+        free(ordini);
+        // Libera i buffer e la cella
+        terminate(cella->buf_lam);
+        terminate(cella->buf_pressa);
+        terminate(cella->buf_gom);
+        if (cella->laminazione) free(cella->laminazione);
+        if (cella->pressa) free(cella->pressa);
+        if (cella->gom) free(cella->gom);
+        if (cella->agv) free(cella->agv);
+        free(cella);
+        logger_close();
+        return 1;
     }
 
     log_info(0, "FASE 3 Completata: Generazione Pezzi Svolta");
-    log_info_f(0, "  - Generati in totale %d pezzi dagli ordini.", id_pezzo_counter - 1);
+    log_info_f(0, "  - Generati in totale %d pezzi dagli ordini.", total_pieces);
 
     print_pezzi(cella->list_head);
 

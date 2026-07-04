@@ -1,4 +1,4 @@
 tipo,tempo_laminazione,ciclo_termico,deviazione_max,area_stampo
-A,5,15,1.00,0.08
-B,10,20,1.00,0.12
-C,12,25,1.20,0.16
+A,5,15,1.8,0.08
+B,10,20,1.7,0.12
+C,12,25,1.9,0.16

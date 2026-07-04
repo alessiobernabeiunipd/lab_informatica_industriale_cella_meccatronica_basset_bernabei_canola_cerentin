@@ -33,4 +33,10 @@ int parse_ordini(const char *filepath, ordine_entry **entries);
 // Ritorna 0 in caso di successo, -1 in caso di errore. Popola dest.
 int parse_parametri(const char *filepath, parametri_simulazione *dest);
 
+// Genera i pezzi dagli ordini attingendo ai valori nominali del catalogo.
+// Ritorna il numero totale di pezzi generati in caso di successo, o -1 in caso di errore di allocazione.
+int genera_pezzi_da_ordini(cella_meccatronica *cella, 
+                           const ordine_entry *ordini, int num_ordini,
+                           const catalogo_entry *catalogo, int num_cat);
+
 #endif // PARSING_H
