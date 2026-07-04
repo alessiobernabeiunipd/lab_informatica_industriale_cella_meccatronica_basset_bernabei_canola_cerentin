@@ -65,7 +65,6 @@ int main(void) {
      * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
      *   durata massima della simulazione, temperatura iniziale, ecc.).
      */
-    metrics_init(num_ordini); // Inizializza le metriche con il numero di pezzi previsto dagli ordini
     cella_meccatronica *cella = init_cella(params);
     if (cella == NULL) {
         log_error(0, "Errore: inizializzazione della cella fallita.");
@@ -230,7 +229,7 @@ int main(void) {
     if (cella->buf_gom) terminate(cella->buf_gom);
     
     free(cella);
-
+    metrics_destroy();
     log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
     logger_close();
     return 0;
