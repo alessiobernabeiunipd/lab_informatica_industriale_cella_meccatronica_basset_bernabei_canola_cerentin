@@ -21,14 +21,16 @@ Il sistema simula il flusso lineare di un reparto produttivo avanzato per materi
 
 ## 💻 Architettura del Software
 
-Il progetto adotta un approccio rigorosamente modulare:
+Il progetto adotta un approccio rigorosamente modulare diviso in librerie statiche sotto `libs/` e un'applicazione principale:
 
-* `src/main.c`: Gestisce il ciclo principale (clock discreto) e l'evoluzione temporale della simulazione.
-* `src/parser.c` / `include/parser.h`: Modulo dedicato al parsing e alla validazione robusta dei file di configurazione e degli ordini CSV.
-* `src/simulazione.c` / `include/cella.h`: Contiene le definizioni delle `struct` e le funzioni di gestione delle code (liste concatenate) e della fisica dei componenti.
-* `src/controllore.c` / `include/controllore.h`: Il "cervello" del sistema che interroga i sensori (inclusi i comportamenti non ideali) e aziona gli attuatori.
-* `src/logger.c` / `include/logger.h`: Gestisce la scrittura del log eventi in tempo reale e la generazione del report statistico finale.
-* `test/`: Suite di test unitari sviluppati con il framework **Unity**.
+* **`libs/commons`**: Contiene le definizioni di tutti i tipi e delle strutture dati condivise (`types.h`) e le funzioni ausiliarie generiche (`utils.h`).
+* **`libs/model`**: Modella lo stato fisico e la fisica delle singole stazioni (AGV, laminazione, pressa, GOM) e le operazioni sui buffer FIFO (`cella.h`, `pezzo.h`, `buffer.h`).
+* **`libs/parsing`**: Gestisce il parsing dei parametri di input, del catalogo dei pezzi e della lista ordini da file CSV, oltre alla generazione iniziale dei pezzi (`parsing.h`, `generator.c`).
+* **`libs/controller`**: Il cervello del sistema, implementa il loop del controllore e le politiche industriali (FCFS / priorità) coordinando gli spostamenti (`controller.h`).
+* **`libs/stats`**: Si occupa della raccolta e del calcolo passivo delle metriche della simulazione in tempo reale (`metrics.h`).
+* **`libs/io`**: Gestisce la formattazione dei log eventi e la generazione dei report statistici finali sia su stdout che su file di testo (`logger.h`, `report.h`).
+* **`app/src/main.c`**: L'entry point dell'applicazione, gestisce il setup iniziale, l'avvio del clock temporale discreto e il rilascio finale delle risorse.
+* **`test/`**: Suite di test unitari completi sviluppati con il framework **Unity**.
 
 ---
 
@@ -39,10 +41,25 @@ Il progetto adotta un approccio rigorosamente modulare:
 * CMake (versione 3.10 o superiore)
 * Valgrind (per il controllo della memoria)
 
-### Compilazione con CMake
-Dalla cartella principale del progetto, eseguire:
+### Configurazione del Gruppo di Compilazione (CMake)
+La modalità di compilazione va selezionata definendo la variabile `TARGET_GROUP` in CMake per alternare tra l'eseguibile di simulazione o la suite di test unitari.
+
+#### 1. Compilazione ed Esecuzione della Simulazione
+Per compilare ed avviare il simulatore della cella meccatronica (`cella_sim`):
 ```bash
-mkdir build
+mkdir -p build
 cd build
-cmake ..
+cmake .. -DTARGET_GROUP=simulation
 make
+./app/cella_sim
+```
+
+#### 2. Compilazione ed Esecuzione dei Test Unitari
+Per compilare ed eseguire tutti i test unitari con `ctest`:
+```bash
+mkdir -p build
+cd build
+cmake .. -DTARGET_GROUP=test
+make
+ctest
+```
