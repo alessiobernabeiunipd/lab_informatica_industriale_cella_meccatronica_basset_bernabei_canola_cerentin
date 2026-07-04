@@ -23,6 +23,16 @@ add_subdirectory(libs/controller)
 
 if(TARGET_GROUP STREQUAL simulation)
     add_subdirectory(app)
+
+    # target di comodita': "make sim_memcheck"
+    # compila la simulazione e la esegue sotto Valgrind, girando da build/: il parser trova
+    # --error-exitcode=1 fa fallire il comando se emergono leak o errori di memoria.
+    find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+    add_custom_target(sim_memcheck
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target cella_sim
+        COMMAND ${MEMORYCHECK_COMMAND} --leak-check=full --show-leak-kinds=all --error-exitcode=1 $<TARGET_FILE:cella_sim>
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Compila ed esegue la simulazione sotto Valgrind")
 elseif(TARGET_GROUP STREQUAL test)
     # Individua valgrind e mettilo in cache, cosi' il comando di memory-check non
     # si azzera nelle riconfigurazioni successive (causa del "valgrind: command not found").
