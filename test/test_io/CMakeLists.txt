@@ -5,6 +5,6 @@ add_executable(io_lib_test src/test.c)
 target_link_libraries( io_lib_test
 PRIVATE  
     io 
-    unity
+    Unity
 )
 add_test(io_test io_lib_test)

@@ -19,17 +19,25 @@ static void unload_all(cella_meccatronica *c){
     }
 
     //valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dalla pressa
-    if(is_full(c->buf_gom)==0){
-        pezzo *ppres = pressa_unload(c->pressa, c->tick_corrente);
-        if(ppres != NULL){
-            // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
-            log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla pressa", ppres->id_pezzo);
-            new_item(ppres, c->buf_gom);
-            log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer GOM", ppres->id_pezzo);
+    for (int i = 0; i < c->param.n_presse; i++) {
+
+        if (is_full(c->buf_gom) == 0) {
+            pezzo *ppres = pressa_unload(c->pressa[i], c->tick_corrente);
+
+            if (ppres != NULL) {
+                // log_info deve essere fatto dentro if sennò molte volte prenderebbe NULL e quindi crash
+                log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla pressa %d", ppres->id_pezzo, i + 1 );
+                new_item(ppres, c->buf_gom);
+                log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer GOM", ppres->id_pezzo);
+                //non posso caricare due pezzi nello stesso tick per limitazioni dei buffer
+                break; 
+            }
+        } 
+        else {
+            record_block();
+            log_warning_f(c->tick_corrente, "Buffer GOM pieno: scarico dalla pressa %d bloccato", i);
+            break; // se il buffer è pieno, inutile controllare le altre presse in questo tick
         }
-    } else {
-        record_block();
-        log_warning_f(c->tick_corrente, "Buffer GOM pieno: scarico dalla pressa bloccato");
     }
     //valuto se il buffer può ricevere un altro pezzo, poi scarico il pezzo dalla laminazione
     if(is_full(c->buf_pressa)==0){
@@ -68,14 +76,16 @@ static void load_all(cella_meccatronica *c){
             log_info_f(c->tick_corrente, "Pezzo %d caricato sul GOM", pgom->id_pezzo);
         }
     }
+    for (int i = 0; i < c->param.n_presse; i++) {
     // prendo dal buffer il primo elemento (puntatore a pezzo) e valuto se esiste o è NULL
-    if(pressa_is_free(c->pressa) && !is_empty(c->buf_pressa)){
-        pezzo *ppres = take_item(c->buf_pressa);
-        if(ppres != NULL) {
-            pressa_load(c->pressa, ppres, c->tick_corrente);
-            log_info_f(c->tick_corrente, "Pezzo %d caricato sulla pressa", ppres->id_pezzo);
+        if(pressa_is_free(c->pressa[i]) && !is_empty(c->buf_pressa)){
+            pezzo *ppres = take_item(c->buf_pressa);
+            if(ppres != NULL) {
+                pressa_load(c->pressa[i], ppres, c->tick_corrente);
+                log_info_f(c->tick_corrente, "Pezzo %d caricato sulla pressa %d", ppres->id_pezzo, i + 1);
+            }
+            
         }
-        
     }
     // prendo dal buffer il primo elemento (puntatore a pezzo) e valuto se esiste o è NULL
     if(laminazione_is_free(c->laminazione) && !is_empty(c->buf_lam)){
@@ -116,7 +126,8 @@ static void tick_all(cella_meccatronica *c){
         log_warning_f(c->tick_corrente, "GOM in stato di raffreddamento: pezzo %d in lavorazione", c->gom->pezzo_in_lavorazione->id_pezzo);
     }
     //decremento i tick di lavorazione pressa
-    pressa_tick(c->pressa);
+    for (int i = 0; i < c->param.n_presse; i++) 
+        pressa_tick(c->pressa[i]);
     //decremento i tick di lavorazione laminazione
     laminazione_tick(c->laminazione);
     //decremento i tick di lavorazione agv
@@ -124,6 +135,7 @@ static void tick_all(cella_meccatronica *c){
 }
 
 void controller(cella_meccatronica *c){
+
     int total_pieces = 0;
     pezzo *curr = c->list_head;
     while (curr != NULL) {
@@ -135,7 +147,7 @@ void controller(cella_meccatronica *c){
     log_info_f(c->tick_corrente, "Avvio simulazione con politica %s: durata massima %d tick", c->param.politica_controllo , c->param.durata_simulazione_max);
 
     //inizializzo tempo per agv
-    c->param.tempo_agv = TEMPO_GOM;
+    c->param.tempo_agv = TEMPO_AGV;
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){
         //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.

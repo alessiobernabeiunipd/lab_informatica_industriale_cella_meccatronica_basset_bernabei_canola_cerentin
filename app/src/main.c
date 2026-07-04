@@ -114,6 +114,7 @@ int main(void) {
         logger_close();
         return 1;
     }
+    
     parametri_simulazione params_a = params;
     strcpy(params_a.politica_controllo, "fcfs");
     parametri_simulazione params_b = params;

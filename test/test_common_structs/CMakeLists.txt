@@ -5,7 +5,7 @@ target_link_libraries( commons_lib_test
     PRIVATE  
     commons
     io
-    unity
+    Unity
 ) 
 
 add_test(commons_test commons_lib_test)

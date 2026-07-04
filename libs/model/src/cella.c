@@ -3,13 +3,15 @@
 cella_meccatronica *init_cella(parametri_simulazione param){
     cella_meccatronica *c = malloc(sizeof(cella_meccatronica));
     if (c == NULL) return NULL;
+
+    c->param = param;
     
     c->laminazione = init_laminazione();
     if (c->laminazione == NULL) {
         free(c); 
         return NULL;
     }
-    c->pressa = init_pressa();
+    c->pressa = init_presse(c->param.n_presse);
     if (c->pressa == NULL) {
         free(c->laminazione);
         free(c); 
@@ -18,20 +20,19 @@ cella_meccatronica *init_cella(parametri_simulazione param){
     c->gom = init_gom();
     if (c->gom == NULL) {
         free(c->laminazione); 
-        free(c->pressa); 
+        free_presse(c->pressa, c->param.n_presse); 
         free(c); 
         return NULL;
     }
     c->agv = init_agv();
     if (c->agv == NULL) {
         free(c->laminazione); 
-        free(c->pressa); 
+        free_presse(c->pressa, c->param.n_presse);  
         free(c->gom); 
         free(c); 
         return NULL;
     }
     
-    c->param = param;
     c->gom->t_GOM = c->param.temperatura_ambiente_iniziale;
 
     c->tick_corrente = 0;
@@ -43,7 +44,7 @@ cella_meccatronica *init_cella(parametri_simulazione param){
     if (c->buf_lam == NULL) {
         free(c->agv);
         free(c->laminazione); 
-        free(c->pressa); 
+        free_presse(c->pressa, c->param.n_presse); 
         free(c->gom); 
         free(c); 
         return 0;
@@ -53,7 +54,7 @@ cella_meccatronica *init_cella(parametri_simulazione param){
         free(c->buf_lam);
         free(c->agv);
         free(c->laminazione); 
-        free(c->pressa); 
+        free_presse(c->pressa, c->param.n_presse);  
         free(c->gom); 
         free(c); 
         return 0;
@@ -64,7 +65,7 @@ cella_meccatronica *init_cella(parametri_simulazione param){
         free(c->buf_lam);
         free(c->agv);
         free(c->laminazione); 
-        free(c->pressa); 
+        free_presse(c->pressa, c->param.n_presse); 
         free(c->gom); 
         free(c); 
         return 0;
@@ -92,7 +93,7 @@ void cella_destroy(cella_meccatronica *c){
     //libero le quattro stazioni
     free(c->agv);
     free(c->laminazione);
-    free(c->pressa);
+    free_presse(c->pressa, c->param.n_presse);
     free(c->gom);
 
     free(c);
@@ -149,6 +150,33 @@ stazione_pressa *init_pressa(){
     pressa->tick_lavorazione_rimasti = 0;
     pressa->pezzo_in_lavorazione = NULL;
     return pressa;
+}
+
+void free_presse(stazione_pressa **presse, int n_presse) {
+    if (presse == NULL) return;
+    for (int i = 0; i < n_presse; i++) {
+        free(presse[i]);
+    }
+    free(presse);
+}
+
+stazione_pressa **init_presse(int n_presse){
+    stazione_pressa **presse = malloc(n_presse * sizeof(stazione_pressa *));
+    if (presse == NULL) return NULL;
+
+    for (int i = 0; i < n_presse; i++) {
+        presse[i] = init_pressa();
+        if (presse[i] == NULL) {
+            // rollback: libero tutto quello che ho già allocato
+            for (int j = 0; j < i; j++) {
+                free(presse[j]);
+            }
+            free(presse);
+            return NULL;
+        }
+    }
+
+    return presse;
 }
 
 int pressa_is_free(stazione_pressa *pressa) {

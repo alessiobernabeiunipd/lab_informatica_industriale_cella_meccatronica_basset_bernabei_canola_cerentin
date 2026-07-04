@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "parsing.h"
 
 // Rimuove spazi bianchi all'inizio e alla fine di una stringa
@@ -199,6 +200,7 @@ int parse_parametri(const char *filepath, parametri_simulazione *dest) {
     dest->temperatura_ambiente_iniziale = 0.0f;
     dest->temperatura_incremento_minuto = 0.0f;
     dest->durata_simulazione_max = 0;
+    dest->n_presse = 0;
 
     while (fgets(line, sizeof(line), file)) {
         char *comment = strchr(line, '#');
@@ -229,6 +231,8 @@ int parse_parametri(const char *filepath, parametri_simulazione *dest) {
             dest->capacita_buffer_pressa = atoi(val);
         } else if (strcmp(key, "capacita_buffer_gom") == 0) {
             dest->capacita_buffer_gom = atoi(val);
+        } else if (strcmp(key, "numero_presse") == 0){
+            dest->n_presse = atoi(val);
         } else if (strcmp(key, "politica_controllo") == 0) {
             strncpy(dest->politica_controllo, val, sizeof(dest->politica_controllo) - 1);
             dest->politica_controllo[sizeof(dest->politica_controllo) - 1] = '\0';

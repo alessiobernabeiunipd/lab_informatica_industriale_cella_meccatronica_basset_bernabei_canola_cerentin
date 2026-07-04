@@ -10,7 +10,7 @@ target_link_libraries( controller_test
     commons
     io
     stats
-    unity
+    Unity
 )
 
 add_test(controller_test controller_test)

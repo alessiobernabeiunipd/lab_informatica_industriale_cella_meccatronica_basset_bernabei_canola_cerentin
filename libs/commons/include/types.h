@@ -111,6 +111,7 @@ typedef struct {
     float temperatura_incremento_minuto;
     int durata_simulazione_max;
     int tempo_agv;
+    int n_presse;
 } parametri_simulazione;
 
 typedef struct {
@@ -161,7 +162,7 @@ typedef struct {
 
 typedef struct {
     stazione_laminazione  *laminazione;
-    stazione_pressa       *pressa;
+    stazione_pressa       **pressa;
     stazione_GOM          *gom;
     AGV                   *agv;
 

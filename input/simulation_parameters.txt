@@ -3,6 +3,7 @@ max_area_pressa=0.35
 capacita_buffer_laminazione=5
 capacita_buffer_pressa=5
 capacita_buffer_gom=3
+numero_presse=3
 # Politica di controllo: "fcfs" per Scenario 1, "priorita" per Scenario 2
 politica_controllo=priorita
 temperatura_ambiente_iniziale=24.0

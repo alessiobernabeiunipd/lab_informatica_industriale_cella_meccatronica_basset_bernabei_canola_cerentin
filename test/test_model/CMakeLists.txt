@@ -6,6 +6,6 @@ target_link_libraries( model_lib_test
     model 
     commons
     io
-    unity
+    Unity
 ) 
 add_test(model_lib_test model_lib_test)

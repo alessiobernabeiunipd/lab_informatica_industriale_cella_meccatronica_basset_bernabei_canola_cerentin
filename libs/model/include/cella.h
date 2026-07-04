@@ -37,7 +37,10 @@ void agv_tick(AGV *agv);
 
 
 //initialize pressa
-stazione_pressa *init_pressa();
+stazione_pressa **init_presse(int n_presse);
+
+//Distrugge tutte le presse inizializzate
+void free_presse(stazione_pressa **presse, int n_presse);
 
 // Ritorna true se la stazione è libera (IDLE), false se occupata (BUSY).
 int pressa_is_free(stazione_pressa *pressa);
