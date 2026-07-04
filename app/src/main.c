@@ -12,20 +12,10 @@
 int main(void) {
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
 
-    //inizializzazione del seed randomico
+    // Inizializzazione del seed per la generazione di numeri casuali
     srand(time(NULL));
     
-      /*
-     * FASE 1: PARSING E CARICAMENTO DELLE CONFIGURAZIONI
-     * 
-     * - Caricare i parametri di simulazione (es. da "input/simulation_parameters.csv" o ".txt").
-     * - Caricare il catalogo dei pezzi (es. da "input/catalogo.csv").
-     * - Caricare la lista degli ordini (es. da "input/ordini.csv").
-     * - Verificare che tutti i caricamenti siano andati a buon fine; in caso di errore, 
-     *   stampare un messaggio appropriato, liberare le risorse parziali ed uscire.
-     * - Nota: Utilizzare esclusivamente le funzioni fornite dalla libreria di parsing per
-     *   mantenere il main pulito.
-     */
+    // Caricamento dei parametri di simulazione da file CSV o TXT
     parametri_simulazione params;
     int param_res = parse_parametri("input/simulation_parameters.csv", &params);
     if (param_res != 0) {
@@ -37,6 +27,7 @@ int main(void) {
         return 1;
     }
 
+    // Caricamento del catalogo dei pezzi dal file CSV
     catalogo_entry *catalogo = NULL;
     int num_cat = parse_catalogo("input/catalogo.csv", &catalogo);
     if (num_cat <= 0) {
@@ -45,6 +36,7 @@ int main(void) {
         return 1;
     }
 
+    // Caricamento degli ordini di produzione dal file CSV
     ordine_entry *ordini = NULL;
     int num_ordini = parse_ordini("input/ordini.csv", &ordini);
     if (num_ordini <= 0) {
@@ -54,22 +46,15 @@ int main(void) {
         return 1;
     }
 
-    log_info(0, "FASE 1 Completata: Configurazione Caricata");
-    log_info(0, "  - Parametri di simulazione pronti.");
-    log_info_f(0, "  - %d elementi presenti nel catalogo.", num_cat);
-    log_info_f(0, "  - %d ordini di produzione caricati.", num_ordini);
+    printf("Configurazione Caricata\n");
+    printf("  - Parametri di simulazione pronti.\n");
+    printf("  - %d elementi presenti nel catalogo.\n", num_cat);
+    printf("  - %d ordini di produzione caricati.\n\n", num_ordini);
 
-
-    /*
-     * FASE 2: INIZIALIZZAZIONE DELLA CELLA E DELLE STAZIONI
-     * 
-     * - Dichiarare e inizializzare la struttura principale della cella meccatronica.
-     * - Collegare le stazioni (laminazione, pressa, GOM, AGV) alle rispettive strutture 
-     *   all'interno della cella meccatronica.
-     * - Configurare i parametri iniziali estratti nella Fase 1 (es. capacità dei buffer, 
-     *   durata massima della simulazione, temperatura iniziale, ecc.).
-     */
-    metrics_init(num_ordini); // Inizializza le metriche con il numero di pezzi previsto dagli ordini
+    // Inizializzazione delle statistiche con il numero totale di pezzi atteso dagli ordini
+    metrics_init(num_ordini);
+    
+    // Inizializzazione delle stazioni, dei buffer e della cella meccatronica
     cella_meccatronica *cella = init_cella(params);
     if (cella == NULL) {
         log_error(0, "Errore: inizializzazione della cella fallita.");
@@ -79,25 +64,16 @@ int main(void) {
         return 1;
     }
 
-    log_info(0, "FASE 2 Completata: Cella e Stazioni Inizializzate");
-    log_info(0, "  - Stato delle stazioni impostato a IDLE.");
-    log_info_f(0, "  - Temperatura iniziale GOM: %.2f °C", cella->gom->t_GOM);
+    printf("Cella e Stazioni Inizializzate\n");
+    printf("  - Stato delle stazioni impostato a IDLE.\n");
+    printf("  - Temperatura iniziale GOM: %.2f °C\n\n", cella->gom->t_GOM);
 
-
-    /*
-     * FASE 3: GENERAZIONE DEI PEZZI DAGLI ORDINI
-     * 
-     * - Scorrere la lista degli ordini letti nella Fase 1.
-     * - Per ciascun ordine, istanziare la quantità richiesta di pezzi.
-     * - Per ogni pezzo creato, associare i valori nominali corrispondenti leggendoli dal catalogo 
-     *   (tempo di laminazione, ciclo termico, deviazione max, area stampo, ecc.).
-     * - Concatenare tutti i pezzi in una lista collegata globale (memorizzata nella cella).
-     */
+    // Generazione della lista dei pezzi dagli ordini attingendo ai valori nominali del catalogo
     int total_pieces = genera_pezzi_da_ordini(cella, ordini, num_ordini, catalogo, num_cat);
     if (total_pieces < 0) {
         free(catalogo);
         free(ordini);
-        // Libera i buffer e la cella
+        // Libera i buffer e le stazioni in caso di fallimento per evitare leak
         terminate(cella->buf_lam);
         terminate(cella->buf_pressa);
         terminate(cella->buf_gom);
@@ -110,66 +86,36 @@ int main(void) {
         return 1;
     }
 
-    log_info(0, "FASE 3 Completata: Generazione Pezzi Svolta");
-    log_info_f(0, "  - Generati in totale %d pezzi dagli ordini.", total_pieces);
+    printf("Generazione Pezzi Svolta\n");
+    printf("  - Generati in totale %d pezzi dagli ordini.\n\n", total_pieces);
 
+    // Stampa a terminale la lista dei pezzi da produrre
     print_pezzi(cella->list_head);
 
-
-    /*
-     * FASE 4: AVVIO E ESECUZIONE DEL CICLO DELLA SIMULAZIONE (LOOP DEI TICK)
-     * 
-     * - Eseguire un ciclo temporale discreto (loop) che incrementa il tick corrente.
-     * - Il ciclo continua finché il tick corrente è inferiore alla durata massima definita.
-     * - All'interno di ogni tick:
-     *     1. Chiamare la funzione principale del controllore (es. controllore_tick(&cella)) 
-     *        che gestisce l'avanzamento dello stato delle macchine, i movimenti dell'AGV 
-     *        e lo spostamento dei pezzi tra i buffer.
-     *     2. (Opzionale) Stampare o loggare lo stato corrente della cella a fini di debug/simulazione.
-     */
-    log_info(0, "FASE 4: Avvio del ciclo di simulazione...");
+    printf("Avvio del ciclo di simulazione...\n");
+    
+    // Esecuzione dell'intero ciclo della simulazione (loop temporale discreto)
     controller(cella);
-    log_info_f(cella->tick_corrente - 1, "FASE 4 Completata: Ciclo di simulazione terminato.");
+    
+    // Log di completamento del ciclo di simulazione
+    log_info_f(cella->tick_corrente - 1, "Ciclo di simulazione terminato.");
 
-
-    /*
-     * FASE 5: GENERAZIONE DEL REPORT FINALE E DELLE STATISTICHE
-     *
-     * - Al termine del ciclo di simulazione, calcolare le statistiche finali sul lavoro svolto:
-     *     - Numero totale di pezzi prodotti e di pezzi scartati.
-     *     - Lead time medio dei pezzi completati.
-     *     - Rispetto delle deadline degli ordini.
-     * - Stampare a schermo o scrivere su file un report riassuntivo pulito e strutturato.
-     */
+    // Consolidamento finale e calcolo delle metriche a simulazione conclusa
     metrics_finalize();
     const metriche_t *m_finali = metrics_get();
 
-    // stampa a video il report
+    // Stampa a video del report finale delle statistiche
     report_print("FCFS", m_finali);
 
-    // scrive il report su file
+    // Scrittura del report statistico finale su file di testo
     if (report_write("report.txt", "FCFS", m_finali) != 0) {
         log_error(cella->tick_corrente, "Errore nella scrittura del report su file.");
     }
-    //if (csv_write("report.csv", "FCFS", m_finali) != 0){
-    //    log_error(cella->tick_corrente, "Errore nella scrittura del report CSV su file");
-    //}
 
-    /*
-     * FASE 6: RILASCIO DELLE RISORSE (CLEANUP)
-     * 
-     * - Deallocare tutta la memoria allocata dinamicamente durante l'esecuzione del programma:
-     *     - Lista dei pezzi generati.
-     *     - Catalogo dei pezzi.
-     *     - Lista degli ordini.
-     *     - Eventuali altre strutture allocate dinamicamente.
-     * - Terminare l'esecuzione restituendo 0 in caso di successo.
-     */
-    // Rilascio memoria config
+    // Rilascio di tutta la memoria allocata dinamicamente
     free(catalogo);
     free(ordini);
 
-    // Rilascio memoria pezzi
     pezzo *p_curr = cella->list_head;
     while (p_curr != NULL) {
         pezzo *p_next = p_curr->next;
@@ -177,19 +123,18 @@ int main(void) {
         p_curr = p_next;
     }
 
-    // Rilascio memoria cella e stazioni
     if (cella->laminazione) free(cella->laminazione);
     if (cella->pressa) free(cella->pressa);
     if (cella->gom) free(cella->gom);
     if (cella->agv) free(cella->agv);
     
-    // Libera i buffer della cella
     if (cella->buf_lam) terminate(cella->buf_lam);
     if (cella->buf_pressa) terminate(cella->buf_pressa);
     if (cella->buf_gom) terminate(cella->buf_gom);
     
     free(cella);
 
+    // Chiusura del file di log
     log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
     logger_close();
     return 0;
