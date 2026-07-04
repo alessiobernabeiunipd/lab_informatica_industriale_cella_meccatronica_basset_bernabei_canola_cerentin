@@ -301,7 +301,7 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
 // Assegna randomicamente un valore di deviazione al pezzo e ritorna lo status corrispondente
 // in base alle specifiche da catalogo
 static piece_status gom_evaluate(pezzo *p){                                   
-    p->deviazione_gom = random_float(GOM_DEV_MIN, GOM_DEV_MAX);
+    p->deviazione_gom = random_float_seeded(&p->rng_state, GOM_DEV_MIN, GOM_DEV_MAX);
     if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom / 100.0f)
         return SCRAP;
     else return OK;                                                                   

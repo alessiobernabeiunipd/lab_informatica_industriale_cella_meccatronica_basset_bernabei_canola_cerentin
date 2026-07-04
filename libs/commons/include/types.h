@@ -56,8 +56,9 @@ typedef struct pezzo{
     int tempo_pressa_effettivo; 
     int tempo_gom_effettivo;
 
-    int lead_time; 
+    int lead_time;
     float deviazione_gom;        //inizializzato a zero
+    unsigned int rng_state;      //stato del PRNG per-pezzo: estrazioni deterministiche e indipendenti dall'ordine di esecuzione
     struct pezzo *next;
 }pezzo;
 
@@ -112,6 +113,7 @@ typedef struct {
     int durata_simulazione_max;
     int tempo_agv;
     int n_presse;
+    unsigned int seed;   // seed base della simulazione: fissa le deviazioni GOM per rendere confrontabili run diverse
 } parametri_simulazione;
 
 typedef struct {

@@ -75,6 +75,9 @@ pezzo *new_pezzo(){
     new->valori_nom.t_gom = 0;
     new->valori_nom.t_laminazione_nominale = 0;
     new->valori_nom.t_pressa_nominale = 0;
+    // rng_state viene impostato alla generazione dal seed della simulazione; qui solo un valore iniziale sicuro.
+    // Nota: reset_pezzo NON lo azzera, così un pezzo scartato e reinserito continua la propria sequenza.
+    new->rng_state = 0;
     return new;
 }
 

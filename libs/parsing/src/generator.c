@@ -52,6 +52,11 @@ int genera_pezzi_da_ordini(cella_meccatronica *cella,
 
             p->stato = CREATED;
 
+            // Seed del PRNG per-pezzo derivato dal seed della simulazione e dall'id del pezzo:
+            // lo stesso pezzo riceve la stessa sequenza di deviazioni GOM in ogni run (Common Random Numbers),
+            // indipendentemente da numero di presse o politica.
+            p->rng_state = cella->param.seed ^ ((unsigned int)p->id_pezzo * 2654435761u);
+
             // Aggiungiamo il pezzo in coda alla lista della cella
             add_pezzo(&(cella->list_head), p);
         }

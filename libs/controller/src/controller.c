@@ -29,8 +29,8 @@ static void unload_all(cella_meccatronica *c){
                 log_info_f(c->tick_corrente, "Pezzo %d scaricato dalla pressa %d", ppres->id_pezzo, i + 1 );
                 new_item(ppres, c->buf_gom);
                 log_info_f(c->tick_corrente, "Pezzo %d inserito nel buffer GOM", ppres->id_pezzo);
-                //non posso caricare due pezzi nello stesso tick per limitazioni dei buffer
-                break; 
+                //un solo handler movimenta un pezzo per tick: scarico al massimo una pressa
+                break;
             }
         } 
         else {
@@ -83,8 +83,9 @@ static void load_all(cella_meccatronica *c){
             if(ppres != NULL) {
                 pressa_load(c->pressa[i], ppres, c->tick_corrente);
                 log_info_f(c->tick_corrente, "Pezzo %d caricato sulla pressa %d", ppres->id_pezzo, i + 1);
+                //un solo handler movimenta un pezzo per tick: carico al massimo una pressa (come per lo scarico)
+                break;
             }
-            
         }
     }
     // prendo dal buffer il primo elemento (puntatore a pezzo) e valuto se esiste o è NULL

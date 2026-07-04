@@ -30,3 +30,10 @@ const char* status_station_to_string(station_status s){
 float random_float(float min, float max) {
     return min + ((float)rand() / RAND_MAX) * (max - min);
 }
+
+float random_float_seeded(unsigned int *state, float min, float max) {
+    // LCG (Numerical Recipes): avanza lo stato e ne usa i bit alti per un valore in [0, 1).
+    *state = (*state) * 1664525u + 1013904223u;
+    float unit = (float)(*state >> 8) / (float)(1u << 24);
+    return min + unit * (max - min);
+}

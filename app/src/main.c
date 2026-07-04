@@ -43,7 +43,7 @@ static metriche_t esegui(parametri_simulazione params,
         terminate(cella->buf_pressa);
         terminate(cella->buf_gom);
         if (cella->laminazione) free(cella->laminazione);
-        if (cella->pressa) free(cella->pressa);
+        if (cella->pressa) free_presse(cella->pressa, params.n_presse);
         if (cella->gom) free(cella->gom);
         if (cella->agv) free(cella->agv);
         free(cella);
@@ -85,7 +85,7 @@ static metriche_t esegui(parametri_simulazione params,
     }
 
     if (cella->laminazione) free(cella->laminazione);
-    if (cella->pressa) free(cella->pressa);
+    if (cella->pressa) free_presse(cella->pressa, params.n_presse);
     if (cella->gom) free(cella->gom);
     if (cella->agv) free(cella->agv);
 
@@ -100,7 +100,6 @@ static metriche_t esegui(parametri_simulazione params,
 }
 
 int main(void) {
-    srand(time(NULL));
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
 
     // Caricamento dei parametri di simulazione da file CSV o TXT
@@ -114,7 +113,11 @@ int main(void) {
         logger_close();
         return 1;
     }
-    
+
+    // Seed base scelto una sola volta per esecuzione: condiviso da tutte e 4 le run (dati confrontabili),
+    // ma diverso a ogni lancio del programma perche' derivato dall'orario corrente.
+    params.seed = (unsigned int)time(NULL);
+
     parametri_simulazione params_a = params;
     strcpy(params_a.politica_controllo, "fcfs");
     parametri_simulazione params_b = params;
@@ -144,14 +147,38 @@ int main(void) {
     printf("  - %d elementi presenti nel catalogo.\n", num_cat);
     printf("  - %d ordini di produzione caricati.\n\n", num_ordini);
 
-    // Esecuzione della simulazione (una sola run, con la politica presa dai parametri)
+    // Run principali (con il numero di presse da configurazione), usate per il confronto tra politiche
     metriche_t m_a = esegui(params_a, catalogo, num_cat, ordini, num_ordini, "report_fcfs.txt");
     metriche_t m_b = esegui(params_b, catalogo, num_cat, ordini, num_ordini, "report_priorita.txt");
 
-    // Confronto le due run: comparison_diff riempie c (ritorna 0 se ok, -1 se errore)
+    // (1) Confronto tra politiche, a parità di presse: comparison_diff riempie c (0 se ok, -1 se errore)
     confronto_t c;
     comparison_diff(&m_a, "fcfs", &m_b, "priorita", &c);
     comparison_write("confronto.txt", &c);
+
+    // Run a pressa singola, per confrontare il layout (1 pressa vs n_presse) a parità di politica
+    parametri_simulazione params_a_1p = params_a;   // fcfs, una sola pressa
+    params_a_1p.n_presse = 1;
+    parametri_simulazione params_b_1p = params_b;   // priorita, una sola pressa
+    params_b_1p.n_presse = 1;
+
+    metriche_t m_a_1p = esegui(params_a_1p, catalogo, num_cat, ordini, num_ordini, "report_fcfs_1pressa.txt");
+    metriche_t m_b_1p = esegui(params_b_1p, catalogo, num_cat, ordini, num_ordini, "report_priorita_1pressa.txt");
+
+    // Etichette delle due configurazioni di layout messe a confronto (colonne della tabella)
+    char nome_1p[32], nome_np[32];
+    snprintf(nome_1p, sizeof(nome_1p), "1 pressa");
+    snprintf(nome_np, sizeof(nome_np), "%d presse", params.n_presse);
+
+    // (2) Confronto tra layout (1 pressa vs n_presse) per la politica fcfs
+    confronto_t c_fcfs;
+    comparison_diff(&m_a_1p, nome_1p, &m_a, nome_np, &c_fcfs);
+    comparison_write("confronto_fcfs_presse.txt", &c_fcfs);
+
+    // (3) Confronto tra layout (1 pressa vs n_presse) per la politica priorita
+    confronto_t c_prio;
+    comparison_diff(&m_b_1p, nome_1p, &m_b, nome_np, &c_prio);
+    comparison_write("confronto_priorita_presse.txt", &c_prio);
 
     // Rilascio della memoria condivisa, caricata una sola volta
     free(catalogo);
