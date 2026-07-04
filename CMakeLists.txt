@@ -50,6 +50,7 @@ elseif(TARGET_GROUP STREQUAL test)
     add_subdirectory(test/test_io)
     add_subdirectory(test/test_stats)
     add_subdirectory(test/test_controller)
+    add_subdirectory(test/test_parsing)
 
     # target di comodita': "cmake --build build --target memcheck" (o "make memcheck")
     # compila prima TUTTI i test, poi li esegue sotto Valgrind in un colpo solo.
