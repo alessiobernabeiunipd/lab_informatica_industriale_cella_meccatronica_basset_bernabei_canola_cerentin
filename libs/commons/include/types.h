@@ -131,6 +131,33 @@ int blocchi_buffer_pieno;
 int errori_simulazione;
 } metriche_t;
 
+// numero di metriche "interessanti" messe a confronto tra le due politiche
+#define N_METRICHE_CONFRONTO 7
+
+// esito del confronto su una singola metrica: quale politica risulta migliore
+typedef enum {
+    VINCE_A,
+    VINCE_B,
+    PARI
+} vincitore_t;
+
+// riga della tabella di confronto: descrive UNA metrica per entrambe le politiche
+typedef struct {
+    const char *nome_metrica; // etichetta leggibile, es. "Lead time medio"
+    double      valore_a;      // valore della metrica con politica A
+    double      valore_b;      // valore della metrica con politica B
+    double      delta;         // valore_b - valore_a
+    vincitore_t vincitore;     // chi è migliore, tenuto conto della direzione della metrica
+} riga_confronto_t;
+
+// risultato completo del confronto tra due politiche
+typedef struct {
+    char             nome_a[32];                 // nome politica A, es. "FCFS"
+    char             nome_b[32];                 // nome politica B, es. "Priorita"
+    riga_confronto_t righe[N_METRICHE_CONFRONTO]; // una riga per metrica confrontata
+    int              n_righe;                     // righe effettivamente riempite
+} confronto_t;
+
 
 typedef struct {
     stazione_laminazione  *laminazione;
