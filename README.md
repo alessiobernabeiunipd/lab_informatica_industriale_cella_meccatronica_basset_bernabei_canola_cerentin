@@ -46,3 +46,41 @@ mkdir build
 cd build
 cmake ..
 make
+```
+
+---
+
+## 🔍 Verifica della memoria con Valgrind
+
+Oltre ai test funzionali, il progetto usa **Valgrind** per garantire l'assenza di errori
+di memoria sia nei test unitari sia nella simulazione reale. Sono disponibili due comandi
+dedicati, che falliscono se emerge un leak (grazie a `--error-exitcode=1`):
+
+```bash
+cmake .. -DTARGET_GROUP=test        && make memcheck      # tutti i test unitari sotto Valgrind
+cmake .. -DTARGET_GROUP=simulation  && make sim_memcheck  # la simulazione completa sotto Valgrind
+```
+
+### Problemi reali individuati e risolti grazie a Valgrind
+
+L'analisi con Valgrind ha fatto emergere alcuni bug che i normali test funzionali non
+rilevavano:
+
+- **Crash del GOM in raffreddamento (NULL dereference).** Dopo aver scaricato un pezzo
+  in stato `COOLING`, la stazione restava in quello stato senza pezzo; alla chiamata
+  successiva `gom_unload_and_evaluate` scriveva su un puntatore NULL → SIGSEGV
+  (`Invalid write of size 4`). Corretto con una guardia su `pezzo_in_lavorazione != NULL`.
+
+- **Lettura di memoria non inizializzata nelle metriche.** `init_cella` azzerava solo
+  alcuni campi della struct delle metriche; Valgrind segnalava `conditional jump depends
+  on uninitialised value`. Corretto azzerando l'intera struttura.
+
+- **Leak delle metriche nella simulazione.** `main` chiamava `metrics_init` una seconda
+  volta (il controllore la reinizializzava sovrascrivendo le allocazioni) e non chiamava
+  mai `metrics_destroy`: memoria persa e mai liberata, visibile solo eseguendo la
+  simulazione completa. Corretto rimuovendo l'init ridondante e aggiungendo la `destroy`.
+
+- **Leak nella suite di test del model.** I test allocavano pezzi e stazioni senza
+  liberarli; inoltre un'asserzione errata abortiva un test prima della pulizia,
+  mascherando il leak. Corretto con una helper di deallocazione e la correzione
+  dell'asserzione.
