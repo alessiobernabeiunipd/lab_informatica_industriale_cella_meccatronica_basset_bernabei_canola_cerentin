@@ -39,4 +39,7 @@ int genera_pezzi_da_ordini(cella_meccatronica *cella,
                            const ordine_entry *ordini, int num_ordini,
                            const catalogo_entry *catalogo, int num_cat);
 
+// Stampa l'elenco dei pezzi da produrre senza prefissi di log
+void print_pezzi(const pezzo *list_head);
+
 #endif // PARSING_H
