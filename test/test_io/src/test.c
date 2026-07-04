@@ -87,7 +87,7 @@ int init_result = logger_init("test_log.log");
 }
 // test di report write
 void test_report_write_path_valido(void){
-    metriche_t m = {100, 90, 5, 5, 2, 0.05, 10.0, 5.0, 3.0, 2.0, 1.0, 0.5, 1};
+    metriche_t m = {100, 90, 5, 5, 2, 0.05, 10.0, 5.0, 3.0, 2.0, 1.0, 0.5, 1, 0, 0};
     int test_report = report_write("politica_test_report.txt", "politica_test", &m);
     if (test_report != 0){
         TEST_FAIL_MESSAGE("report_write ha fallito");
@@ -110,7 +110,7 @@ void test_report_write_path_valido(void){
     remove("politica_test_report.txt");
 }
 void test_report_write_path_non_valido(void){
-    metriche_t m = {100, 90, 5, 5, 2, 0.05, 10.0, 5.0, 3.0, 2.0, 1.0, 0.5, 1};
+    metriche_t m = {100, 90, 5, 5, 2, 0.05, 10.0, 5.0, 3.0, 2.0, 1.0, 0.5, 1, 0, 0};
     int test_report = report_write("cartella_non_esistente/politica_test_report.txt", "politica_test", &m);
     TEST_ASSERT_EQUAL_INT(-1, test_report);
 }
