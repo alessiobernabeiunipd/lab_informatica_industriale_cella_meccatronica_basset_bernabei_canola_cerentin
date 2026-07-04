@@ -8,13 +8,101 @@
 #include "utils.h"
 #include "metrics.h"
 #include "report.h"
+#include "comparison.h"
+#include "comparator.h"
+
+// Esegue una singola simulazione completa con la politica contenuta in params.
+// Alloca e libera internamente la cella e la lista dei pezzi di questa run.
+// Ritorna una copia delle metriche finali.
+static metriche_t esegui(parametri_simulazione params,
+                         catalogo_entry *catalogo, int num_cat,
+                         ordine_entry *ordini, int num_ordini, const char *report_path) {
+    metriche_t risultato = {0};
+
+    
+    
+
+    // Inizializzazione delle stazioni, dei buffer e della cella meccatronica
+    // Nota: le metriche vengono inizializzate dal controller (metrics_init con il
+    // conteggio effettivo dei pezzi), quindi qui NON va chiamata per evitare doppia init.
+    cella_meccatronica *cella = init_cella(params);
+    if (cella == NULL) {
+        log_error(0, "Errore: inizializzazione della cella fallita.");
+        return risultato;
+    }
+
+    printf("Cella e Stazioni Inizializzate\n");
+    printf("  - Stato delle stazioni impostato a IDLE.\n");
+    printf("  - Temperatura iniziale GOM: %.2f °C\n\n", cella->gom->t_GOM);
+
+    // Generazione della lista dei pezzi dagli ordini attingendo ai valori nominali del catalogo
+    int total_pieces = genera_pezzi_da_ordini(cella, ordini, num_ordini, catalogo, num_cat);
+    if (total_pieces < 0) {
+        // Libera i buffer e le stazioni in caso di fallimento per evitare leak
+        terminate(cella->buf_lam);
+        terminate(cella->buf_pressa);
+        terminate(cella->buf_gom);
+        if (cella->laminazione) free(cella->laminazione);
+        if (cella->pressa) free(cella->pressa);
+        if (cella->gom) free(cella->gom);
+        if (cella->agv) free(cella->agv);
+        free(cella);
+        return risultato;
+    }
+
+    printf("Generazione Pezzi Svolta\n");
+    printf("  - Generati in totale %d pezzi dagli ordini.\n\n", total_pieces);
+
+    // Stampa a terminale la lista dei pezzi da produrre
+    print_pezzi(cella->list_head);
+
+    printf("Avvio del ciclo di simulazione...\n");
+
+    // Esecuzione dell'intero ciclo della simulazione (loop temporale discreto)
+    controller(cella);
+
+    // Log di completamento del ciclo di simulazione
+    log_info_f(cella->tick_corrente - 1, "Ciclo di simulazione terminato.");
+
+    // Consolidamento finale e calcolo delle metriche a simulazione conclusa
+    metrics_finalize();
+    risultato = *metrics_get();   // copia per valore PRIMA di metrics_destroy
+
+    // Stampa a video del report finale delle statistiche
+    report_print(params.politica_controllo, &risultato);
+
+    // Scrittura del report statistico finale su file di testo
+    if (report_write(report_path, params.politica_controllo, &risultato) != 0) {
+        log_error(cella->tick_corrente, "Errore nella scrittura del report su file.");
+    }
+
+    // Rilascio della memoria della cella e dei pezzi di questa run
+    pezzo *p_curr = cella->list_head;
+    while (p_curr != NULL) {
+        pezzo *p_next = p_curr->next;
+        free(p_curr);
+        p_curr = p_next;
+    }
+
+    if (cella->laminazione) free(cella->laminazione);
+    if (cella->pressa) free(cella->pressa);
+    if (cella->gom) free(cella->gom);
+    if (cella->agv) free(cella->agv);
+
+    if (cella->buf_lam) terminate(cella->buf_lam);
+    if (cella->buf_pressa) terminate(cella->buf_pressa);
+    if (cella->buf_gom) terminate(cella->buf_gom);
+
+    free(cella);
+    metrics_destroy();
+
+    return risultato;
+}
 
 int main(void) {
+    srand(time(NULL));
     printf("=== AVVIO SIMULATORE CELLA MECCATRONICA ===\n\n");
 
-    // Inizializzazione del seed per la generazione di numeri casuali
-    srand(time(NULL));
-    
     // Caricamento dei parametri di simulazione da file CSV o TXT
     parametri_simulazione params;
     int param_res = parse_parametri("input/simulation_parameters.csv", &params);
@@ -26,6 +114,10 @@ int main(void) {
         logger_close();
         return 1;
     }
+    parametri_simulazione params_a = params;
+    strcpy(params_a.politica_controllo, "fcfs");
+    parametri_simulazione params_b = params;
+    strcpy(params_b.politica_controllo, "priorita");
 
     // Caricamento del catalogo dei pezzi dal file CSV
     catalogo_entry *catalogo = NULL;
@@ -51,90 +143,19 @@ int main(void) {
     printf("  - %d elementi presenti nel catalogo.\n", num_cat);
     printf("  - %d ordini di produzione caricati.\n\n", num_ordini);
 
-    // Inizializzazione delle stazioni, dei buffer e della cella meccatronica
-    // Nota: le metriche vengono inizializzate dal controller (metrics_init con il
-    // conteggio effettivo dei pezzi), quindi qui NON va chiamata per evitare doppia init.
-    cella_meccatronica *cella = init_cella(params);
-    if (cella == NULL) {
-        log_error(0, "Errore: inizializzazione della cella fallita.");
-        free(catalogo);
-        free(ordini);
-        logger_close();
-        return 1;
-    }
+    // Esecuzione della simulazione (una sola run, con la politica presa dai parametri)
+    metriche_t m_a = esegui(params_a, catalogo, num_cat, ordini, num_ordini, "report_fcfs.txt");
+    metriche_t m_b = esegui(params_b, catalogo, num_cat, ordini, num_ordini, "report_priorita.txt");
 
-    printf("Cella e Stazioni Inizializzate\n");
-    printf("  - Stato delle stazioni impostato a IDLE.\n");
-    printf("  - Temperatura iniziale GOM: %.2f °C\n\n", cella->gom->t_GOM);
+    // Confronto le due run: comparison_diff riempie c (ritorna 0 se ok, -1 se errore)
+    confronto_t c;
+    comparison_diff(&m_a, "fcfs", &m_b, "priorita", &c);
+    comparison_write("confronto.txt", &c);
 
-    // Generazione della lista dei pezzi dagli ordini attingendo ai valori nominali del catalogo
-    int total_pieces = genera_pezzi_da_ordini(cella, ordini, num_ordini, catalogo, num_cat);
-    if (total_pieces < 0) {
-        free(catalogo);
-        free(ordini);
-        // Libera i buffer e le stazioni in caso di fallimento per evitare leak
-        terminate(cella->buf_lam);
-        terminate(cella->buf_pressa);
-        terminate(cella->buf_gom);
-        if (cella->laminazione) free(cella->laminazione);
-        if (cella->pressa) free(cella->pressa);
-        if (cella->gom) free(cella->gom);
-        if (cella->agv) free(cella->agv);
-        free(cella);
-        logger_close();
-        return 1;
-    }
-
-    printf("Generazione Pezzi Svolta\n");
-    printf("  - Generati in totale %d pezzi dagli ordini.\n\n", total_pieces);
-
-    // Stampa a terminale la lista dei pezzi da produrre
-    print_pezzi(cella->list_head);
-
-    printf("Avvio del ciclo di simulazione...\n");
-    
-    // Esecuzione dell'intero ciclo della simulazione (loop temporale discreto)
-    controller(cella);
-    
-    // Log di completamento del ciclo di simulazione
-    log_info_f(cella->tick_corrente - 1, "Ciclo di simulazione terminato.");
-
-    // Consolidamento finale e calcolo delle metriche a simulazione conclusa
-    metrics_finalize();
-    const metriche_t *m_finali = metrics_get();
-
-    // Stampa a video del report finale delle statistiche
-    report_print("FCFS", m_finali);
-
-    // Scrittura del report statistico finale su file di testo
-    if (report_write("report.txt", "FCFS", m_finali) != 0) {
-        log_error(cella->tick_corrente, "Errore nella scrittura del report su file.");
-    }
-
-    // Rilascio di tutta la memoria allocata dinamicamente
+    // Rilascio della memoria condivisa, caricata una sola volta
     free(catalogo);
     free(ordini);
 
-    pezzo *p_curr = cella->list_head;
-    while (p_curr != NULL) {
-        pezzo *p_next = p_curr->next;
-        free(p_curr);
-        p_curr = p_next;
-    }
-
-    if (cella->laminazione) free(cella->laminazione);
-    if (cella->pressa) free(cella->pressa);
-    if (cella->gom) free(cella->gom);
-    if (cella->agv) free(cella->agv);
-    
-    if (cella->buf_lam) terminate(cella->buf_lam);
-    if (cella->buf_pressa) terminate(cella->buf_pressa);
-    if (cella->buf_gom) terminate(cella->buf_gom);
-    
-    free(cella);
-    metrics_destroy();
-
-    // Chiusura del file di log
     log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
     logger_close();
     return 0;
