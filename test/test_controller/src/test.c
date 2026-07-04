@@ -48,7 +48,7 @@ void test_pezzo_completo(void){
     p->valori_nom.t_pressa_nominale = 1;
     p->valori_nom.t_gom = 1;
     // dato che gom_evaluate assegna deviazione random, imposto manualmente
-    p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
     add_pezzo(&cella->list_head, p);
     controller(cella);
     TEST_ASSERT_EQUAL_INT(1, cella->metrics.pezzi_completati);
@@ -62,9 +62,9 @@ void test_fcfs(void){
     p1->id_pezzo = 1;
     p2->id_pezzo = 2;
     p3->id_pezzo = 3;
-    p1->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
-    p2->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
-    p3->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p1->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
+    p2->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
+    p3->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
     add_pezzo(&cella->list_head, p1);
     add_pezzo(&cella->list_head, p2);
     add_pezzo(&cella->list_head, p3);
@@ -81,9 +81,9 @@ void test_priorita(void){
     p1->id_pezzo = 1;
     p2->id_pezzo = 2;
     p3->id_pezzo = 3;
-    p1->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
-    p2->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
-    p3->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+    p1->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
+    p2->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
+    p3->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
     p1->priorità = 3;
     p2->priorità = 2;
     p3->priorità = 1;
@@ -101,7 +101,7 @@ void test_priorita(void){
 void test_buffer_pieno(void){
     for (int i = 0; i < 10; i++){
         pezzo *p = new_pezzo();
-        p->valori_nom.deviazione_max_gom = GOM_DEV_MAX;
+        p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MAX * 100);
         p->valori_nom.t_gom = 1000; // gom lento
         p->valori_nom.t_laminazione_nominale = 1; // monte veloce
         p->valori_nom.t_pressa_nominale = 1; // monte veloce
@@ -118,7 +118,7 @@ void test_buffer_pieno(void){
 // test scarto e rilavorazione => genero una catena di scarti fino a fine simulazione
 void test_scarto_rilavorazione(void){
     pezzo *p = new_pezzo();
-    p->valori_nom.deviazione_max_gom = GOM_DEV_MIN;
+    p->valori_nom.deviazione_max_gom = (int)(GOM_DEV_MIN * 100);
     p->valori_nom.t_laminazione_nominale = 1;
     p->valori_nom.t_pressa_nominale = 1;
     p->valori_nom.t_gom = 1;
