@@ -8,6 +8,7 @@
 
 
 static FILE *log_file = NULL;
+static int last_logged_tick = -1;
 
 // apre il file in modalità "W", ritorna -1 se fallisce o già inizializzato
 int logger_init(const char *log_file_path){
@@ -18,6 +19,7 @@ int logger_init(const char *log_file_path){
     if (log_file == NULL){
         return -1; //errore apertura file    
     }
+    last_logged_tick = -1;
     return 0; //success
 }
 
@@ -25,6 +27,11 @@ int logger_init(const char *log_file_path){
 // la stessa cosa su più funzioni; output duplicato su terminale e file se aperto
 //fflush serve a non perdere righe in caso di crash
 static void scrivi_log(int tick, const char *message, const char *level, const char *color){
+    if (last_logged_tick != -1 && tick != last_logged_tick) {
+        fprintf(stdout, "\n");
+    }
+    last_logged_tick = tick;
+
     fprintf(stdout, "%s[%-7s] Tick %04d: %s%s\n", color, level, tick, message, ANSI_RESET);
     if (log_file != NULL){
         fprintf(log_file, "[%-7s] Tick %04d: %s\n", level, tick, message);   

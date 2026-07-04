@@ -7,6 +7,5 @@
 const char* status_pezzo_to_string (piece_status s);
 const char* status_station_to_string(station_status s);
 float random_float(float min, float max);
-void print_pezzi(const pezzo *list_head);
 
 #endif 

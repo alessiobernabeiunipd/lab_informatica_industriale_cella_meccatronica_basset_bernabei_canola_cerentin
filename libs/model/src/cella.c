@@ -274,7 +274,7 @@ void gom_tick(stazione_GOM *gom, parametri_simulazione param) {
 // in base alle specifiche da catalogo
 static piece_status gom_evaluate(pezzo *p){                                   
     p->deviazione_gom = random_float(GOM_DEV_MIN, GOM_DEV_MAX);
-    if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom)
+    if(p->deviazione_gom >= p->valori_nom.deviazione_max_gom / 100.0f)
         return SCRAP;
     else return OK;                                                                   
 }

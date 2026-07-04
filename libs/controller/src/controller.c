@@ -3,11 +3,12 @@
 #include "logger.h"
 #include "metrics.h"
 
+
 static void unload_all(cella_meccatronica *c){
     //scarico il pezzo dal gom e valuto la sua conformità alle specifiche
     pezzo *pgom = gom_unload_and_evaluate(c->gom, c->tick_corrente);
     if(pgom != NULL){
-        quality_control(&(c->metrics.pezzi_completati), &(c->metrics.pezzi_scartati), (&c->list_head), pgom);
+        quality_control(&(c->metrics.pezzi_completati), &(c->metrics.pezzi_scartati), &(c->list_head), pgom);
         if(pgom->stato == OK){
             record_piece_done(pgom);
             log_info_f(c->tick_corrente, "Pezzo %d scaricato dal GOM e completato (lead time %d tick)", pgom->id_pezzo, pgom->lead_time);
@@ -95,6 +96,9 @@ static void load_all(cella_meccatronica *c){
         // trovo il primo pezzo tra quelli con  priorità maggiore che non ha ancora iniziato lavorazione e dico al agv di prendere lo stampo
         pagv = high_priority(c->list_head, CREATED);
     }
+    else {
+        log_error_f(c->tick_corrente, "Errore: Politica di controllo '%s' non valida. Deve essere 'fcfs' o 'priorita'.", c->param.politica_controllo);
+    }
     if(pagv != NULL && agv_is_free(c->agv)){
             agv_get_mold(c->agv, pagv, c->param.tempo_agv, c->tick_corrente);
             log_info_f(c->tick_corrente, "AGV incaricato per il trasporto del pezzo %d", pagv->id_pezzo);
@@ -142,7 +146,6 @@ void controller(cella_meccatronica *c){
 
         //incremento il conteggio dei tick che tengono traccia dello scorrere del tempo
         c->tick_corrente++;
-        printf("\n");
     }
 
     metrics_finalize();
