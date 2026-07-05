@@ -19,8 +19,27 @@ static metriche_t esegui(parametri_simulazione params,
                          ordine_entry *ordini, int num_ordini, const char *report_path) {
     metriche_t risultato = {0};
 
-    
-    
+    if(params.n_presse < 1){
+        log_error_f(0, "Numero di presse inserito %d invalido, la simulazione verrà eseguita con 1 pressa", params.n_presse);
+        params.n_presse = 1;
+    }
+
+    if(params.capacita_buffer_gom < 1){
+        log_error_f(0, "Capacità del buffer gom inserita %d invalida", params.capacita_buffer_gom);
+    }
+    if(params.capacita_buffer_laminazione < 1){
+        log_error_f(0, "Capacità del buffer laminazione inserita %d invalida", params.capacita_buffer_laminazione);
+    } 
+    if(params.capacita_buffer_pressa < 1){
+        log_error_f(0, "Capacità del buffer pressa inserita %d invalida", params.capacita_buffer_pressa);
+    }
+    if(params.temperatura_ambiente_iniziale > GOM_TMAX){
+        log_error_f(0, "Temperatura ambiente iniziale %d troppo elevata, GOM fuori uso", params.temperatura_ambiente_iniziale);
+    }
+    if(params.durata_simulazione_max < 0){
+        log_error_f(0, "Durata della simulazione %d invalida", params.durata_simulazione_max);
+        params.durata_simulazione_max = 0;
+    }
 
     // Inizializzazione delle stazioni, dei buffer e della cella meccatronica
     // Nota: le metriche vengono inizializzate dal controller (metrics_init con il
