@@ -105,10 +105,7 @@ int main(void) {
 
     // Caricamento dei parametri di simulazione da file CSV o TXT
     parametri_simulazione params;
-    int param_res = parse_parametri("input/simulation_parameters.csv", &params);
-    if (param_res != 0) {
-        param_res = parse_parametri("input/simulation_parameters.txt", &params);
-    }
+    int param_res = parse_parametri("input/simulation_parameters.txt", &params);
     if (param_res != 0) {
         log_error(0, "Errore: impossibile caricare i parametri di simulazione.");
         logger_close();
@@ -156,7 +153,7 @@ int main(void) {
     free(catalogo);
     free(ordini);
 
-    log_info(0, "=== SIMULAZIONE COMPLETATA CON SUCCESSO ===");
+    printf("=== SIMULAZIONE COMPLETATA CON SUCCESSO ===\n");
     logger_close();
     return 0;
 }
