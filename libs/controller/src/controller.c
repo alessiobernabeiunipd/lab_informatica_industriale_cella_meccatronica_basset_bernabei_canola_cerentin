@@ -135,7 +135,7 @@ void controller(cella_meccatronica *c){
     log_info_f(c->tick_corrente, "Avvio simulazione con politica %s: durata massima %d tick", c->param.politica_controllo , c->param.durata_simulazione_max);
 
     //inizializzo tempo per agv
-    c->param.tempo_agv = TEMPO_GOM;
+    c->param.tempo_agv = TEMPO_AGV;
 
     while(c->tick_corrente <= c->param.durata_simulazione_max){
         //chiamo le funzioni di controllo. La strategia adottata prevede tre fasi (load, unload, tick) per quattro stazioni.

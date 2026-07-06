@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#define TEMPO_GOM 2
+#define TEMPO_AGV 2
 #include "cella.h"
 
 /*Esegue il controllo logico di tutta la cella ricevendo in input la struttura cella_meccatronica.
