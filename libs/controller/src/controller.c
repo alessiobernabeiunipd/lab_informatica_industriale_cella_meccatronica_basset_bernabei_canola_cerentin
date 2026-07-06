@@ -14,7 +14,7 @@ static void unload_all(cella_meccatronica *c){
             log_info_f(c->tick_corrente, "Pezzo %d scaricato dal GOM e completato (lead time %d tick)", pgom->id_pezzo, pgom->lead_time);
         } else {
             record_piece_scrap(pgom);
-            log_warning_f(c->tick_corrente, "Pezzo %d scartato al GOM, reinserito in produzione", pgom->id_pezzo);
+            log_error_f(c->tick_corrente, "Pezzo %d scartato al GOM, reinserito in produzione", pgom->id_pezzo);
         }
     }
 
@@ -113,7 +113,7 @@ static void tick_all(cella_meccatronica *c){
    //decremento i tick di lavorazione gom
     gom_tick(c->gom, c->param); 
     if (gom_stato_prima != COOLING && c->gom->stato == COOLING){
-        log_warning_f(c->tick_corrente, "GOM in stato di raffreddamento: pezzo %d in lavorazione", c->gom->pezzo_in_lavorazione->id_pezzo);
+        log_error_f(c->tick_corrente, "GOM in stato di raffreddamento: pezzo %d in lavorazione", c->gom->pezzo_in_lavorazione->id_pezzo);
     }
     //decremento i tick di lavorazione pressa
     pressa_tick(c->pressa);
